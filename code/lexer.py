@@ -13,7 +13,7 @@ tokens = [
 'EQUAL', 'LESS', 'GREATER', 'LESSEQUAL', 'GREATEREQUAL', 
 'COMMENT',
 'LPAREN', 'RPAREN',
-'ASSIGN', 'SEMICOLON'
+'ASSIGN', 'SEMICOLON',
 ]
 
 tokens = tokens + list(reserved.values())
@@ -31,7 +31,6 @@ def makelex():
     t_TIMES = r'\*'
     t_MINUS = r'-'
     t_PLUS = r'\+'
-
     t_EQUAL = r'='
     t_LESS = r'<'
     t_GREATER = r'>'
@@ -46,7 +45,7 @@ def makelex():
     t_ignore  = ' \t\n'
 
     def t_INT(t):
-        r'[-+]?\d+'
+        r'\d+'
         t.value = int(t.value)
         return t
 
@@ -64,6 +63,13 @@ def tokenize(lexer, data):
 
 if __name__ == "__main__":
     lexer = makelex()
+
+    data = '''
+    x := 3 - 4 * (5-10);
+    y := 2 + 2
+
+    if x > y then y := x + y; else y := y - x; fi
+    '''
 
     data = '''
     {-Computes the -factorial of the number 
