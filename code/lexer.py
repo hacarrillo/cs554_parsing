@@ -1,28 +1,32 @@
 import ply.lex as lex
 
+reserved = {
+'if' : 'IF', 'then' : 'THEN', 'else' : 'ELSE', 'while' : 'WHILE',
+'true' : 'TRUE', 'false' : 'FALSE', 'not' : 'NOT', 'and' : 'AND', 'or' : 'OR',
+'skip' : 'SKIP', 'fi' : 'FI', 'do' : 'DO', 'od' : 'OD'
+}
+
+tokens = [
+'INT', 
+'ID', 
+'TIMES', 'MINUS', 'PLUS', 
+'EQUAL', 'LESS', 'GREATER', 'LESSEQUAL', 'GREATEREQUAL', 
+'COMMENT',
+'LPAREN', 'RPAREN',
+'ASSIGN', 'SEMICOLON'
+]
+
+tokens = tokens + list(reserved.values())
+
 def makelex():
-    reserved = {
-        'if' : 'IF', 'then' : 'THEN', 'else' : 'ELSE', 'while' : 'WHILE',
-        'true' : 'TRUE', 'false' : 'FALSE', 'not' : 'NOT', 'and' : 'AND', 'or' : 'OR',
-        'skip' : 'SKIP', 'fi' : 'FI', 'do' : 'DO', 'od' : 'OD'
-    }
-
-    tokens = [
-        'INT', 
-        'ID', 
-        'TIMES', 'MINUS', 'PLUS', 
-        'EQUAL', 'LESS', 'GREATER', 'LESSEQUAL', 'GREATEREQUAL', 
-        'LINECOMMENT', 'LCOMMENT', 'RCOMMENT',
-        'LPAREN', 'RPAREN',
-        'ASSIGN', 'SEMICOLON'
-    ]
-
-    tokens = tokens + list(reserved.values())
-
     def t_ID(t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
         t.type = reserved.get(t.value,'ID')
         return t
+
+    def t_COMMENT(t):
+        r'(\{-([^-]|[\r\n]|(\-([^\}]|[\r\n])))*-\}|--.*\n)'
+        pass
 
     t_TIMES = r'\*'
     t_MINUS = r'-'
@@ -34,10 +38,6 @@ def makelex():
     t_LESSEQUAL = r'<='
     t_GREATEREQUAL = r'>='
 
-    t_LINECOMMENT = r'--'
-    t_LCOMMENT = '\{-'
-    t_RCOMMENT = '-\}'
-
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
     t_ASSIGN = r':='
@@ -46,7 +46,7 @@ def makelex():
     t_ignore  = ' \t\n'
 
     def t_INT(t):
-        r'\d+'
+        r'[-+]?\d+'
         t.value = int(t.value)
         return t
 
@@ -66,12 +66,18 @@ if __name__ == "__main__":
     lexer = makelex()
 
     data = '''
-    {-
-    Computes the factorial of the number stored in x and leaves the result in output
-    -}
-    whiledo := 10;
+    {-Computes the -factorial of the number 
+    stored in x and leaves the result in output-}
+
     y := x;
     z := 1;
+    
+    {- MORE COMMENT -}
+
+    -- line comment
+    whiledo := 10;
+    y := x;
+    z := -1;
     while y > 1 do
     z := z * y;
     y := y - 1
@@ -80,6 +86,6 @@ if __name__ == "__main__":
     output := z
     '''
 
-    tokens = tokenize(lexer, data) 
-    for tok in tokens:
+    code_tokens = tokenize(lexer, data) 
+    for tok in code_tokens:
         print(tok)
