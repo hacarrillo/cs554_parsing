@@ -1,7 +1,6 @@
 import ply.yacc as yacc
 from lexer import *
 from collections import OrderedDict
-import numpy as np
 import os.path
 from functools import reduce
 

@@ -2,10 +2,10 @@ import ply.yacc as yacc
 from lexer import *
 from parser import *
 from collections import OrderedDict
-import numpy as np
 import os.path
 from functools import reduce
 import argparse
+import os
 
 stackmap = ['a1','a2','a3','a4','a5','t0','t1','t2']
 
@@ -91,7 +91,7 @@ def AST_to_CST(ast):
 
 def compile(path):
     data = open(path).read()
-    name = os.path.basename(path)
+    name = os.path.basename(path).split('.')[0]
 
     print(data)
 
@@ -108,7 +108,7 @@ def compile(path):
             variables.append(v)
     variables_sorted = sorted(variables)
 
-    make_main(path, variables, variables_sorted)
+    make_main(name, variables, variables_sorted)
 
     print('----------------------------------')
     parser = makeparser()
@@ -119,15 +119,21 @@ def compile(path):
     print(cst)
 
     assembly = to_assembly(cst, variables, name)
+    f = open(name + '.s','w')
+    f.write(assembly)
+    f.close()
     print(assembly)
 
+    print('gcc main.c ' + name + '.s -o ' + name)
+    os.system('gcc main.c ' + name + '.s -o ' + name)
+
 def to_assembly(cst, variables, name):
-    assembly = '''  .file "computation.c"
+    assembly = '''  .file "'''+name+'''.c"
   .option nopic
   .text
   .comm vars,''' + str(8*len(variables)) + ''',8
   .align  1
-  .globl  example6
+  .globl ''' + name + '''
   .type ''' + name + ''', @function
 ''' + name + ':' + '''
   addi  sp,sp,-32
@@ -163,17 +169,17 @@ def to_assembly(cst, variables, name):
     assembly += '\n  .size ' + name +', .-'+name+'\n  .ident  \"GCC: (GNU) 9.0.1 20190123 (Red Hat 9.0.1-0.1)\"\n  .section  .note.GNU-stack,\"\",@progbits'
     return assembly
 
-def make_main(path, variables, variables_sorted):
+def make_main(name, variables, variables_sorted):
     main = '''#include <stdlib.h>
 #include <stdio.h>
-extern void ''' + os.path.basename(path) + '''(long int * vars);
+extern void ''' + name + '''(long int * vars);
 long int vars [''' + str(len(variables)) + '''];
 int main (int argc, char ** argv)
 {
     int i;
     if (argc != ''' + str(len(variables) + 1) + ''')
     {
-        printf ("Usage: ''' + os.path.basename(path) + ' ' + reduce(lambda x, y : x + " " + y, variables_sorted) + '''\\n");
+        printf ("Usage: ''' + name + ' ' + reduce(lambda x, y : x + " " + y, variables_sorted) + '''\\n");
         exit(1);
     }
 '''
@@ -188,7 +194,7 @@ int main (int argc, char ** argv)
     for i in range(len(variables_sorted)):
         main += '''printf("''' + str(variables[variables.index(variables_sorted[i])]) + '''=%ld\\n", vars[''' + str(variables.index(variables_sorted[i])) + ''']);
     '''
-    main += os.path.basename(path) + '''(vars);
+    main += name + '''(vars);
     printf("Final State:\\n");
     '''
 
@@ -199,6 +205,7 @@ int main (int argc, char ** argv)
 }'''
     f = open('main.c','w')
     f.write(main)
+    f.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
