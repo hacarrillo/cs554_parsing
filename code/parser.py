@@ -1,6 +1,9 @@
 import ply.yacc as yacc
 from lexer import *
 from collections import OrderedDict
+import numpy as np
+import os.path
+from functools import reduce
 
 def makeparser():
     start = 'command'
@@ -131,123 +134,3 @@ def makeparser():
     parser = yacc.yacc()
     return parser
 
-'''
-def CST_to_list(res, level):
-    terminals = []
-    derivation = res[0].split(' ');
-    for i in range(1, len(derivation)+1):
-        if isinstance(res[i], tuple):
-            terminals.extend(AST_to_list(res[i], level+1))
-        else:
-            terminals.append((res[i], level+1))
-    terminals = sorted(terminals, key = lambda x : x[1])
-    return terminals
-'''
-
-# assign, booleans, skip, if, while, expr
-def AST_to_CST(ast):
-    if ast == None:
-        return []
-
-    ld = len(ast)
-    derivation = [a[0] for a in ast]
-
-    if ['command','SEMICOLON','newcommand'] == derivation:
-        return [AST_to_CST(ast[0][1]), AST_to_CST(ast[2][1])]
-    elif ['IF', 'bool', 'THEN', 'command', 'ELSE', 'command', 'FI'] == derivation:
-        return ['if', AST_to_CST(ast[1][1]), AST_to_CST(ast[3][1]), AST_to_CST(ast[5][1])]
-    elif ['ID','ASSIGN','expression'] == derivation:
-        return ['assignment', [ast[0][1]], AST_to_CST(ast[2][1])]
-    elif ['LPAREN','expression','RPAREN'] == derivation:
-        return AST_to_CST(ast[1][1])
-    elif ['WHILE','bool','DO','command','OD'] == derivation:
-        return ['while', AST_to_CST(ast[1][1]), AST_to_CST(ast[3][1])]
-    elif ('ID' in derivation or 'INT' in derivation or 'TRUE' in derivation or 'FALSE' in derivation) and ld == 1:
-        return [ast[0][1]]
-    elif ld == 1:
-        return AST_to_CST(ast[0][1])
-    elif ld == 3:
-        return [ast[1][1], AST_to_CST(ast[0][1]), AST_to_CST(ast[2][1])]
-
-if __name__ == "__main__":
-    data = '''
-    x := 3 - 4 * (5-10);
-    y := 2 + 2
-
-    if x > y then y := x + y; else y := y - x; fi
-    '''
-
-    data = '''
-    if 3 > 4 then y := 3 + 4; else y := 3 - 4; fi
-    '''
-
-    data = '''
-    {-Computes the -factorial of the number 
-    stored in x and leaves the result in output-)
-
-    y := x;
-    z := 1;
-    
-    {- MORE COMMENT -}
-
-    -- line comment
-    whiledo := 10;
-    y := x;
-    z := -1;
-    while y > 1 do
-    z := z * y;
-    y := y - 1
-    od;
-    y := 0;
-    output := z
-    '''
-
-    data = '''
-    y := (4+4)*(3+4)*5
-    '''
-
-
-    data = '''
-    {-
-    compute Collatz
-    input number is "input"
-    output is the number of steps, in "output"
-    -}
-    n := input;
-    steps := 0;
-    while n > 1 do
-    rem := n; --Here we divide n by 2:
-    quot := 0;
-    while rem > 1 do
-    rem := rem - 2;
-    quot := quot + 1
-    od;
-    if rem = 0 then
-    n := quot
-    else
-    n := 3*n+1
-    fi;
-    steps := steps + 1
-    od;
-    output := steps
-    '''
-
-    lexer = makelex()
-    code_tokens = tokenize(lexer, data)
-
-    parser = makeparser()
-
-    print(data)
-    print()
-    result = parser.parse(data)
-    print(result)
-    print()
-    print(AST_to_CST(result))
-    '''
-    print(type(result))
-    stack = AST_to_list(result, 0)
-    for s in stack:
-        print(s)
-
-
-    '''
