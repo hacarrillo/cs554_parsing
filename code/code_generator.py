@@ -7,6 +7,8 @@ import os.path
 from functools import reduce
 import argparse
 
+stackmap = ['a1','a2','a3','a4','a5','t0','t1','t2']
+
 # assign, booleans, skip, if, while, expr
 def to_stack(ast):
     if ast == None:
@@ -32,8 +34,8 @@ def to_stack(ast):
         return res
     elif ['ID','ASSIGN','expression'] == derivation:
         res = to_stack(ast[2][1])
-        res.append(ast[0][1])
-        res.append(ast[1][1])
+        #res.append(ast[0][1] + " " + ast[1][1])
+        res.append(ast[1][1] + " " + ast[0][1])
         return res
     elif ['LPAREN','expression','RPAREN'] == derivation:
         return to_stack(ast[1][1])
@@ -112,10 +114,14 @@ def compile(path):
     parser = makeparser()
 
     result = parser.parse(data)
-    #cst = AST_to_CST(result)
     cst = to_stack(result)
+    cst.reverse()
     print(cst)
 
+    assembly = to_assembly(cst, variables, name)
+    print(assembly)
+
+def to_assembly(cst, variables, name):
     assembly = '''  .file "computation.c"
   .option nopic
   .text
@@ -126,9 +132,36 @@ def compile(path):
 ''' + name + ':' + '''
   addi  sp,sp,-32
   sd  s0,24(sp)
-  addi  s0,sp,32
-'''
-    print(assembly)
+  addi  s0,sp,32'''
+
+    stack_height = 0
+    while len(cst) > 0:
+        item = cst.pop()
+        if isinstance(item, int):
+            assembly += '\n  li '+stackmap[stack_height]+', '+str(item)
+            stack_height += 1
+        elif item in variables:
+            idx = variables.index(item)
+            assembly += '\n  ld '+stackmap[stack_height]+', '+str(idx*8)+'(a0)'
+            stack_height += 1
+        elif item in ['*','+','-']:
+            if item == '*':
+                assembly += '\n  mul '
+            elif item == '-':
+                assembly += '\n  sub '
+            elif item == '+':
+                assembly += '\n  add '
+            assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
+            stack_height -= 1
+        elif ':=' in item:
+            var = item.split()[1]
+            idx = variables.index(var)
+            assembly += '\n  sd '+stackmap[stack_height-1]+', '+str(idx*8)+'(a0)'
+            stack_height -= 1
+
+    assembly += '\n  ld  s0,24(sp)\n  addi  sp,sp,32\n  jr  ra'
+    assembly += '\n  .size ' + name +', .-'+name+'\n  .ident  \"GCC: (GNU) 9.0.1 20190123 (Red Hat 9.0.1-0.1)\"\n  .section  .note.GNU-stack,\"\",@progbits'
+    return assembly
 
 def make_main(path, variables, variables_sorted):
     main = '''#include <stdlib.h>
