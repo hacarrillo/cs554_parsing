@@ -132,7 +132,7 @@ def makeparser():
         p[0] = [('FALSE', p[1])]
         
     def p_error(p):
-        print("Syntax error in input!")
+        raise Exception('Syntax error!')
 
     # Build the parser
     parser = yacc.yacc()

@@ -70,20 +70,15 @@ def to_stack(ast):
         res = to_stack(ast[2][1])
         res.append(ast[0][1])
         return res
-    else:
-        print(derivation)
-        print(ast)
-        print(ld)
 
-def generate_code(path):
+def generate_code(path, c):
     data = open(path).read()
     name = os.path.basename(path).split('.')[0]
-
-    print(data)
 
     lexer = makelex()
     code_tokens = tokenize(lexer, data)
 
+    # this is to keep track of variables
     var = []
     for t in code_tokens:
         if t.type == "ID":
@@ -93,27 +88,30 @@ def generate_code(path):
         if v not in variables:
             variables.append(v)
     variables_sorted = sorted(variables)
+    
+    parser = makeparser()
+    try:
+        result = parser.parse(data)
+    except Exception as e:
+        print('Syntax Error!')
+        return
 
+    # make the main file which we will link to
     make_main(name, variables, variables_sorted)
 
-    print('----------------------------------')
-    parser = makeparser()
-
-    result = parser.parse(data)
+    # get a stack of commands, preprocess to make it easier to read
     cst = to_stack(result)
     cst.reverse()
-    print(cst)
 
     assembly = to_assembly(cst, variables, name)
     f = open(name + '.s','w')
     f.write(assembly)
     f.close()
-    print()
-    print()
-    print(assembly)
 
-    print('gcc main.c ' + name + '.s -o ' + name)
-    os.system('gcc main.c ' + name + '.s -o ' + name)
+    # compile if asked to
+    if c:
+        print('gcc main.c ' + name + '.s -o ' + name)
+        os.system('gcc main.c ' + name + '.s -o ' + name)
 
 def to_assembly(cst, variables, name):
     assembly = '''  .file "'''+name+'''.c"
@@ -268,6 +266,7 @@ int main (int argc, char ** argv)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--c", required=False, action='store_true')
     parser.add_argument("path")
     args = parser.parse_args()
-    generate_code(args.path)
+    generate_code(args.path, args.c)
