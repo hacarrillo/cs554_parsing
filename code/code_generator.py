@@ -133,8 +133,8 @@ def generate_code(path):
     print()
     print(assembly)
 
-    #print('gcc main.c ' + name + '.s -o ' + name)
-    #os.system('gcc main.c ' + name + '.s -o ' + name)
+    print('gcc main.c ' + name + '.s -o ' + name)
+    os.system('gcc main.c ' + name + '.s -o ' + name)
 
 def to_assembly(cst, variables, name):
     assembly = '''  .file "'''+name+'''.c"
@@ -206,17 +206,17 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             stack_height -= 1
         elif 'WHILE' in item:
             n = item.split()[1]
-            assembly += '\n.L'+n
+            assembly += '\n.L'+n+':'
             labels.append(maxlabel)
         elif 'DO' in item:
             n = item.split()[1]
             to = item.split()[2]
-            assembly += '\n  .L' + to + '\n.L' + n
+            assembly += '\n  j .L' + to + '\n.L' + n+':'
             stack_height -= 1
             labels.append(maxlabel)
         elif 'OD' in item:
             to = item.split()[1]
-            assembly += '\n  bgtz ' + stackmap[stack_height-1]+' .L' + to 
+            assembly += '\n  bgtz ' + stackmap[stack_height-1]+', .L' + to 
             stack_height -= 1
     
     return assembly
