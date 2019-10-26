@@ -8,9 +8,10 @@ import argparse
 import os
 
 stackmap = ['a1','a2','a3','a4','a5','t0','t1','t2']
-
+maxl = 2
 # assign, booleans, skip, if, while, expr
 def to_stack(ast):
+    global maxl
     if ast == None:
         return []
    
@@ -28,22 +29,28 @@ def to_stack(ast):
         res.extend(to_stack(ast[3][1]))
         res.append('ELSE')
         res.extend(to_stack(ast[5][1]))
+        res.append('FI')
         return res
     elif ['command'] == derivation or ['newcommand'] == derivation:
         res = to_stack(ast[0][1])
         return res
     elif ['ID','ASSIGN','expression'] == derivation:
         res = to_stack(ast[2][1])
-        #res.append(ast[0][1] + " " + ast[1][1])
         res.append(ast[1][1] + " " + ast[0][1])
         return res
     elif ['LPAREN','expression','RPAREN'] == derivation:
         return to_stack(ast[1][1])
     elif ['WHILE','bool','DO','command','OD'] == derivation:
-        res = ['WHILE']
-        res.extend(to_stack(ast[1][1]))
-        res.append('DO')
+        l = maxl
+        maxl += 2
+        # what to call it and where to jump
+        res = ['DO '+str(l) + " " + str(l+1)]
         res.extend(to_stack(ast[3][1]))
+        # what to call it 
+        res.append('WHILE '+ str(l+1))
+        res.extend(to_stack(ast[1][1]))
+        # where to jump
+        res.append('OD ' + str(l))
         return res
     elif ('ID' in derivation or 'INT' in derivation or 'TRUE' in derivation or 'FALSE' in derivation) and ld == 1:
         return [ast[0][1]]
@@ -89,7 +96,7 @@ def AST_to_CST(ast):
     elif ld == 3:
         return [ast[1][1], AST_to_CST(ast[0][1]), AST_to_CST(ast[2][1])]
 
-def compile(path):
+def generate_code(path):
     data = open(path).read()
     name = os.path.basename(path).split('.')[0]
 
@@ -122,10 +129,12 @@ def compile(path):
     f = open(name + '.s','w')
     f.write(assembly)
     f.close()
+    print()
+    print()
     print(assembly)
 
-    print('gcc main.c ' + name + '.s -o ' + name)
-    os.system('gcc main.c ' + name + '.s -o ' + name)
+    #print('gcc main.c ' + name + '.s -o ' + name)
+    #os.system('gcc main.c ' + name + '.s -o ' + name)
 
 def to_assembly(cst, variables, name):
     assembly = '''  .file "'''+name+'''.c"
@@ -141,6 +150,15 @@ def to_assembly(cst, variables, name):
   addi  s0,sp,32'''
 
     stack_height = 0
+    assembly += assembly_loop(cst, variables, stack_height)         
+
+    assembly += '\n  ld  s0,24(sp)\n  addi  sp,sp,32\n  jr  ra'
+    assembly += '\n  .size ' + name +', .-'+name+'\n  .ident  \"GCC: (GNU) 9.0.1 20190123 (Red Hat 9.0.1-0.1)\"\n  .section  .note.GNU-stack,\"\",@progbits'
+    return assembly
+
+def assembly_loop(cst, variables, stack_height, assembly = ''):
+    labels = []
+    maxlabel = 2
     while len(cst) > 0:
         item = cst.pop()
         if isinstance(item, int):
@@ -159,14 +177,48 @@ def to_assembly(cst, variables, name):
                 assembly += '\n  add '
             assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
             stack_height -= 1
+        elif item in ['<','>','>=','<=','=']:
+            if item == '<':
+                assembly += '\n  sub '
+                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
+                assembly += '\n  sltz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
+            elif item == '>':
+                assembly += '\n  sub '
+                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
+                assembly += '\n  sgtz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
+            elif item == '<=':
+                assembly += '\n addi ' + stackmap[stack_height-1] + ', 1'
+                assembly += '\n  slt '
+                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
+            elif item == '>=':
+                assembly += '\n addi ' + stackmap[stack_height-2] + ', 1'
+                assembly += '\n  slt '
+                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
+            elif item == '=':
+                assembly += '\n  sub '
+                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
+                assembly += '\n  seqz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
+            stack_height -= 1
         elif ':=' in item:
             var = item.split()[1]
             idx = variables.index(var)
             assembly += '\n  sd '+stackmap[stack_height-1]+', '+str(idx*8)+'(a0)'
             stack_height -= 1
-
-    assembly += '\n  ld  s0,24(sp)\n  addi  sp,sp,32\n  jr  ra'
-    assembly += '\n  .size ' + name +', .-'+name+'\n  .ident  \"GCC: (GNU) 9.0.1 20190123 (Red Hat 9.0.1-0.1)\"\n  .section  .note.GNU-stack,\"\",@progbits'
+        elif 'WHILE' in item:
+            n = item.split()[1]
+            assembly += '\n.L'+n
+            labels.append(maxlabel)
+        elif 'DO' in item:
+            n = item.split()[1]
+            to = item.split()[2]
+            assembly += '\n  .L' + to + '\n.L' + n
+            stack_height -= 1
+            labels.append(maxlabel)
+        elif 'OD' in item:
+            to = item.split()[1]
+            assembly += '\n  bgtz ' + stackmap[stack_height-1]+' .L' + to 
+            stack_height -= 1
+    
     return assembly
 
 def make_main(name, variables, variables_sorted):
@@ -211,4 +263,4 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("path")
     args = parser.parse_args()
-    compile(args.path)
+    generate_code(args.path)

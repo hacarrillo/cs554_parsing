@@ -82,6 +82,11 @@ def makeparser():
         p[0] = [('LPAREN',p[1]),('expression',p[2]),('RPAREN',p[3])]
 
     # ---------------- bool --------------------
+
+    def p_bool_or(p):
+        'bool : bool OR newbool'
+        p[0] = [('bool',p[1]), ('OR',p[2]), ('newbool',p[3])]
+
     def p_bool_newbool(p):
         'bool : newbool'
         p[0] = [('newbool', p[1])]
@@ -89,10 +94,6 @@ def makeparser():
     def p_bool_and(p):
         'bool : bool AND newbool'
         p[0] = [('bool',p[1]), ('AND',p[2]), ('newbool',p[3])]
-
-    def p_bool_or(p):
-        'bool : bool OR newbool'
-        p[0] = [('bool',p[1]), ('OR',p[2]), ('newbool',p[3])]
 
     def p_newbool_g(p):
         'newbool : expression GREATER expression'
