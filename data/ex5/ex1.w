@@ -1,8 +1,6 @@
-a := 0;
-b := 0;
-if a > 0 and b > 1 then
-  a := 1;
+if not(a > 0 and b > 0) or c < 0 then
+  a := 10;
 else
-  a := 2;
+  a := 20;
 fi;
-a := 3;
+b := 30;

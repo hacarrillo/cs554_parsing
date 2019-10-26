@@ -66,6 +66,14 @@ def to_stack(ast):
         res.extend(to_stack(ast[2][1]))
         res.append(ast[1][1])
         return res
+    elif ld == 4:
+        res = to_stack(ast[2][1])
+        res.append(ast[0][1])
+        return res
+    else:
+        print(derivation)
+        print(ast)
+        print(ld)
 
 def generate_code(path):
     data = open(path).read()
