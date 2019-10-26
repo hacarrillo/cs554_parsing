@@ -91,40 +91,44 @@ def makeparser():
         'bool : newbool'
         p[0] = [('newbool', p[1])]
 
-    def p_bool_and(p):
-        'bool : bool AND newbool'
+    def p_newbool_and(p):
+        'newbool : newbool AND fbool'
         p[0] = [('bool',p[1]), ('AND',p[2]), ('newbool',p[3])]
 
-    def p_newbool_g(p):
-        'newbool : expression GREATER expression'
+    def p_newbool_fbool(p):
+        'newbool : fbool'
+        p[0] = [('fbool', p[1])]
+
+    def p_fbool_g(p):
+        'fbool : expression GREATER expression'
         p[0] = [('expression',p[1]), ('GREATER',p[2]), ('expression',p[3])]
 
-    def p_newbool_l(p):
-        'newbool : expression LESS expression'
+    def p_fbool_l(p):
+        'fbool : expression LESS expression'
         p[0] = [('expression',p[1]), ('LESS',p[2]), ('expression',p[3])]
 
-    def p_newbool_ge(p):
-        'newbool : expression GREATEREQUAL expression'
+    def p_fbool_ge(p):
+        'fbool : expression GREATEREQUAL expression'
         p[0] = [('expression',p[1]), ('GREATEREQUAL',p[2]), ('expression',p[3])]
 
-    def p_newbool_le(p):
-        'newbool : expression LESSEQUAL expression'
+    def p_fbool_le(p):
+        'fbool : expression LESSEQUAL expression'
         p[0] = [('expression',p[1]), ('LESSEQUAL',p[2]), ('expression',p[3])]
 
-    def p_bool_eq(p):
-        'newbool : expression EQUAL expression'
+    def p_fbool_eq(p):
+        'fbool : expression EQUAL expression'
         p[0] = [('expression',p[1]), ('EQUAL',p[2]), ('expression',p[3])]
 
-    def p_bool_not(p):
-        'newbool : NOT LPAREN bool RPAREN'
+    def p_fbool_not(p):
+        'fbool : NOT LPAREN bool RPAREN'
         p[0] = [('NOT',p[1]), ('LPAREN',p[2]), ('bool',p[3]), ('RPAREN',p[4])]
 
-    def p_bool_true(p):
-        'newbool : TRUE'
+    def p_fbool_true(p):
+        'fbool : TRUE'
         p[0] = [('TRUE', p[1])]
 
-    def p_bool_false(p):
-        'newbool : FALSE'
+    def p_fbool_false(p):
+        'fbool : FALSE'
         p[0] = [('FALSE', p[1])]
         
     def p_error(p):

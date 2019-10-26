@@ -23,13 +23,18 @@ def to_stack(ast):
         res.extend(to_stack(ast[2][1]))
         return res
     elif ['IF', 'bool', 'THEN', 'command', 'ELSE', 'command', 'FI'] == derivation:
+        l = maxl
+        maxl += 2
         res = ['IF']
         res.extend(to_stack(ast[1][1]))
-        res.append('THEN')
+        # where to jump
+        res.append('THEN ' + str(l))
         res.extend(to_stack(ast[3][1]))
-        res.append('ELSE')
+        # where to jump and what to name the else
+        res.append('ELSE ' + str(l+1) + " " + str(l))
         res.extend(to_stack(ast[5][1]))
-        res.append('FI')
+        # what to name the new jmp
+        res.append('FI ' + str(l+1))
         return res
     elif ['command'] == derivation or ['newcommand'] == derivation:
         res = to_stack(ast[0][1])
@@ -61,40 +66,6 @@ def to_stack(ast):
         res.extend(to_stack(ast[2][1]))
         res.append(ast[1][1])
         return res
-
-label = -1
-# assign, booleans, skip, if, while, expr
-def AST_to_CST(ast):
-    if ast == None:
-        return []
-    
-    ld = len(ast)
-    derivation = [a[0] for a in ast]
-    global label
-    if ['command','SEMICOLON','newcommand'] == derivation:
-        return ['command', AST_to_CST(ast[0][1]), AST_to_CST(ast[2][1])]
-    elif ['IF', 'bool', 'THEN', 'command', 'ELSE', 'command', 'FI'] == derivation:
-        label += 1 
-        current = label
-        return ['if', AST_to_CST(ast[1][1]), label, AST_to_CST(ast[3][1]), AST_to_CST(ast[5][1])]
-    elif ['command'] == derivation or ['newcommand'] == derivation:
-        return ['command', AST_to_CST(ast[0][1])]
-    elif ['ID','ASSIGN','expression'] == derivation:
-        label += 1 
-        current = label
-        return [ast[1][1], [ast[0][1]], AST_to_CST(ast[2][1]), label]
-    elif ['LPAREN','expression','RPAREN'] == derivation:
-        return AST_to_CST(ast[1][1])
-    elif ['WHILE','bool','DO','command','OD'] == derivation:
-        label += 1 
-        current = label
-        return ['while', AST_to_CST(ast[1][1]), label, AST_to_CST(ast[3][1])]
-    elif ('ID' in derivation or 'INT' in derivation or 'TRUE' in derivation or 'FALSE' in derivation) and ld == 1:
-        return [ast[0][1]]
-    elif ld == 1:
-        return AST_to_CST(ast[0][1])
-    elif ld == 3:
-        return [ast[1][1], AST_to_CST(ast[0][1]), AST_to_CST(ast[2][1])]
 
 def generate_code(path):
     data = open(path).read()
@@ -168,6 +139,21 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             idx = variables.index(item)
             assembly += '\n  ld '+stackmap[stack_height]+', '+str(idx*8)+'(a0)'
             stack_height += 1
+        elif item in ['and', 'or', 'not']:
+            if item == 'and':
+                assembly += '\n  add '
+                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
+                assembly += '\n  li '+stackmap[stack_height-1]+', 1'
+                assembly += '\n  slt '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
+                stack_height -= 1
+            elif item == 'or':
+                assembly += '\n  add '
+                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
+                assembly += '\n  li '+stackmap[stack_height-1]+', 0'
+                assembly += '\n  slt '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
+                stack_height -= 1
+            elif item == 'not':
+                assembly += '\n  seqz '+stackmap[stack_height-1]+', '+stackmap[stack_height-1]
         elif item in ['*','+','-']:
             if item == '*':
                 assembly += '\n  mul '
@@ -192,7 +178,7 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
             elif item == '>=':
                 assembly += '\n addi ' + stackmap[stack_height-2] + ', 1'
-                assembly += '\n  slt '
+                assembly += '\n  slt' 
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
             elif item == '=':
                 assembly += '\n  sub '
@@ -216,7 +202,20 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             labels.append(maxlabel)
         elif 'OD' in item:
             to = item.split()[1]
-            assembly += '\n  bgtz ' + stackmap[stack_height-1]+', .L' + to 
+            assembly += '\n  bnez ' + stackmap[stack_height-1]+', .L' + to 
+            stack_height -= 1
+        elif 'THEN' in item:
+            to = item.split()[1]
+            assembly += '\n  beqz ' + stackmap[stack_height-1]+', .L' + to
+            stack_height -= 1
+        elif 'ELSE' in item:
+            n = item.split()[2]
+            to = item.split()[1]
+            assembly += '\n  j .L' + to + '\n.L' + n+':'
+            stack_height -= 1
+        elif 'FI' in item:
+            n = item.split()[1]
+            assembly += '\n.L' + n+':'
             stack_height -= 1
     
     return assembly
