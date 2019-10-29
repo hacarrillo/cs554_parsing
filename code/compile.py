@@ -6,6 +6,12 @@ import os.path
 from functools import reduce
 import argparse
 import os
+import networkx as nx
+import pygraphviz
+from networkx.drawing.nx_agraph import write_dot
+import pydot
+from networkx.drawing.nx_pydot import write_dot
+
 
 stackmap = ['a1','a2','a3','a4','a5','t0','t1','t2']
 maxl = 2
@@ -14,7 +20,7 @@ def to_stack(ast):
     global maxl
     if ast == None:
         return []
-   
+
     stack = []
     ld = len(ast)
     derivation = [a[0] for a in ast]
@@ -51,7 +57,7 @@ def to_stack(ast):
         # what to call it and where to jump
         res = ['DO '+str(l) + " " + str(l+1)]
         res.extend(to_stack(ast[3][1]))
-        # what to call it 
+        # what to call it
         res.append('WHILE '+ str(l+1))
         res.extend(to_stack(ast[1][1]))
         # where to jump
@@ -71,6 +77,41 @@ def to_stack(ast):
         res.append(ast[0][1])
         return res
 
+
+# ----------------------------------------------------------------------
+def preprocess(L):
+    global count
+    for T in L:
+        if isinstance(T[0],str):
+            count += 1
+            T[0] = T[0] + ' ' + str(count)
+
+        if isinstance(T[1], list):
+            child = preprocess(T[1])
+
+        if isinstance(T[1], str) | isinstance(T[1], int):
+            T[1] = str(T[1]) + ' ' + str(count)
+
+def build(g, L):
+    parents = []
+    for T in L:
+        if isinstance(T[0],str):
+            parent = T[0]
+            parents.append(T[0])
+            g.add_node(parent)
+
+        if isinstance(T[1], list):
+            child = build(g, T[1])
+            for p in child:
+                g.add_edge(parent, p)
+
+        if isinstance(T[1], str) | isinstance(T[1], int):
+            leaf = T[1]
+            g.add_edge(parent, leaf)
+    return parents
+
+# ----------------------------------------------------------------------
+
 def generate_code(path, c):
     data = open(path).read()
     name = os.path.basename(path).split('.')[0]
@@ -88,7 +129,7 @@ def generate_code(path, c):
         if v not in variables:
             variables.append(v)
     variables_sorted = sorted(variables)
-    
+
     parser = makeparser()
     try:
         result = parser.parse(data)
@@ -101,7 +142,10 @@ def generate_code(path, c):
 
     # get a stack of commands, preprocess to make it easier to read
     cst = to_stack(result)
+    # print(cst)
+    # print('')
     cst.reverse()
+    # print(cst)
 
     assembly = to_assembly(cst, variables, name)
     f = open(name + '.s','w')
@@ -112,6 +156,9 @@ def generate_code(path, c):
     if c:
         print('gcc main.c ' + name + '.s -o ' + name)
         os.system('gcc main.c ' + name + '.s -o ' + name)
+
+    return result
+
 
 def to_assembly(cst, variables, name):
     assembly = '''  .file "'''+name+'''.c"
@@ -127,7 +174,7 @@ def to_assembly(cst, variables, name):
   addi  s0,sp,32'''
 
     stack_height = 0
-    assembly += assembly_loop(cst, variables, stack_height)         
+    assembly += assembly_loop(cst, variables, stack_height)
 
     assembly += '\n  ld  s0,24(sp)\n  addi  sp,sp,32\n  jr  ra'
     assembly += '\n  .size ' + name +', .-'+name+'\n  .ident  \"GCC: (GNU) 9.0.1 20190123 (Red Hat 9.0.1-0.1)\"\n  .section  .note.GNU-stack,\"\",@progbits'
@@ -184,7 +231,7 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
             elif item == '>=':
                 assembly += '\n addi ' + stackmap[stack_height-2] + ', 1'
-                assembly += '\n  slt' 
+                assembly += '\n  slt'
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
             elif item == '=':
                 assembly += '\n  sub '
@@ -208,7 +255,7 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             labels.append(maxlabel)
         elif 'OD' in item:
             to = item.split()[1]
-            assembly += '\n  bnez ' + stackmap[stack_height-1]+', .L' + to 
+            assembly += '\n  bnez ' + stackmap[stack_height-1]+', .L' + to
             stack_height -= 1
         elif 'THEN' in item:
             to = item.split()[1]
@@ -223,7 +270,7 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             n = item.split()[1]
             assembly += '\n.L' + n+':'
             stack_height -= 1
-    
+
     return assembly
 
 def make_main(name, variables, variables_sorted):
@@ -269,4 +316,13 @@ if __name__ == "__main__":
     parser.add_argument("--c", required=False, action='store_true')
     parser.add_argument("path")
     args = parser.parse_args()
-    generate_code(args.path, args.c)
+    tree = generate_code(args.path, args.c)
+    print(tree)
+# ----------------------------------------------------------------------
+    count = 0
+    preprocess(tree)
+    G = nx.DiGraph()
+    build(G, tree)
+    write_dot(G, "graph.dot")
+    # run the following to print out the tree in a pdf: dot -Tpdf graph.dot -o graph.pdf
+# ----------------------------------------------------------------------
