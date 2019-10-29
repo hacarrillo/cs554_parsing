@@ -6,7 +6,7 @@ import os.path
 from functools import reduce
 import argparse
 import os
-import networkx as nx
+#import networkx as nx
 #import matplotlib.pyplot as plt
 #import pygraphviz
 #from networkx.drawing.nx_agraph import write_dot
@@ -229,11 +229,11 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
                 assembly += '\n  sgtz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
             elif item == '<=':
-                assembly += '\n  addi ' + stackmap[stack_height-1] + ',x0,1'
+                assembly += '\n  addi ' + stackmap[stack_height-1] + ','+stackmap[stack_height-1]+',1'
                 assembly += '\n  slt '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
             elif item == '>=':
-                assembly += '\n  addi ' + stackmap[stack_height-2] + ',x0,1'
+                assembly += '\n  addi ' + stackmap[stack_height-2] + ','+stackmap[stack_height-2]+',1'
                 assembly += '\n  slt '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
             elif item == '=':
