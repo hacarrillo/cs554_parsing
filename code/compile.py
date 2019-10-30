@@ -7,6 +7,7 @@ from functools import reduce
 import argparse
 import os
 import networkx as nx
+import matplotlib.pyplot as plt
 import pygraphviz
 from networkx.drawing.nx_agraph import write_dot
 import pydot
@@ -323,6 +324,26 @@ if __name__ == "__main__":
     preprocess(tree)
     G = nx.DiGraph()
     build(G, tree)
-    write_dot(G, "graph.dot")
+    # write_dot(G, "graph.dot")
+
+    attributes = []
+    for node in G.nodes():
+        attr = node.split(' ')
+        attributes.append(attr[0])
+
+    node_list = list(G.nodes())
+    type_dict = { k:v for k,v in zip(node_list,attributes)}
+    nx.set_node_attributes(G, type_dict, 'type')
+    G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
+
+    pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
+    plt.figure(3,figsize=(45,45))
+    # 'E0E0E0', 'FFCC99', '#82A9D0', '#F9C56A', '#FF9999', '#A4CACA', '#7DCACA' '#F6D66F'
+    nx.draw(G, pos, with_labels=False, arrows=False, font_size=20, node_size=4500, node_color='#7DCACA')
+    node_labels = nx.get_node_attributes(G,'type')
+    nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=20)
+    plt.savefig('tree.png')
+    # write_dot(G, "graph.dot")
+    # ! dot -Tpdf graph.dot -o graph.pdf
     # run the following to print out the tree in a pdf: dot -Tpdf graph.dot -o graph.pdf
 # ----------------------------------------------------------------------

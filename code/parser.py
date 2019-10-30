@@ -8,6 +8,7 @@ def makeparser():
     start = 'command'
 
     # ---------------- commandands --------------------
+    # define a bunch of derivations, the same we did on paper, but how they look for yacc
     def p_command(p):
         'command : command SEMICOLON newcommand'
         p[0] = [['command',p[1]], ['SEMICOLON', p[0]], ['newcommand', p[3]]]
