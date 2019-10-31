@@ -4,8 +4,6 @@ Input: dividend, divisor
 Output: result
 -}
 
-dividend := 22;
-divisor := 2;
 quotient := 0;
 neg := dividend * divisor;
 

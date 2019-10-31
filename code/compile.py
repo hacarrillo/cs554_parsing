@@ -7,11 +7,11 @@ from functools import reduce
 import argparse
 import os
 import networkx as nx
-import matplotlib.pyplot as plt
-import pygraphviz
-from networkx.drawing.nx_agraph import write_dot
-import pydot
-from networkx.drawing.nx_pydot import write_dot
+#import matplotlib.pyplot as plt
+#import pygraphviz
+#from networkx.drawing.nx_agraph import write_dot
+#import pydot
+#from networkx.drawing.nx_pydot import write_dot
 
 
 stackmap = ['a1','a2','a3','a4','a5','a6','a7','t0','t1','t2','t3','t4','t5','t6']
@@ -187,7 +187,6 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
     labels = []
     maxlabel = 2
     while len(cst) > 0:
-        print(stack_height)
         item = cst.pop()
         if isinstance(item, int):
             assembly += '\n  li '+stackmap[stack_height]+', '+str(item)
@@ -230,11 +229,11 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
                 assembly += '\n  sgtz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
             elif item == '<=':
-                assembly += '\n  addi ' + stackmap[stack_height-1] + ', 1'
+                assembly += '\n  addi ' + stackmap[stack_height-1] + ',x0,1'
                 assembly += '\n  slt '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
             elif item == '>=':
-                assembly += '\n  addi ' + stackmap[stack_height-2] + ', 1'
+                assembly += '\n  addi ' + stackmap[stack_height-2] + ',x0,1'
                 assembly += '\n  slt '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
             elif item == '=':
@@ -320,30 +319,30 @@ if __name__ == "__main__":
     tree = generate_code(args.path, args.c)
     print(tree)
 # ----------------------------------------------------------------------
-    count = 0
-    preprocess(tree)
-    G = nx.DiGraph()
-    build(G, tree)
-    # write_dot(G, "graph.dot")
+ #   count = 0
+ #   preprocess(tree)
+ #   G = nx.DiGraph()
+ #   build(G, tree)
+ #   # write_dot(G, "graph.dot")
 
-    attributes = []
-    for node in G.nodes():
-        attr = node.split(' ')
-        attributes.append(attr[0])
+ #   attributes = []
+ #   for node in G.nodes():
+ #       attr = node.split(' ')
+ #       attributes.append(attr[0])
 
-    node_list = list(G.nodes())
-    type_dict = { k:v for k,v in zip(node_list,attributes)}
-    nx.set_node_attributes(G, type_dict, 'type')
-    G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
+ #   node_list = list(G.nodes())
+ #   type_dict = { k:v for k,v in zip(node_list,attributes)}
+ #   nx.set_node_attributes(G, type_dict, 'type')
+ #   G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
 
-    pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
-    plt.figure(3,figsize=(45,45))
-    # 'E0E0E0', 'FFCC99', '#82A9D0', '#F9C56A', '#FF9999', '#A4CACA', '#7DCACA' '#F6D66F'
-    nx.draw(G, pos, with_labels=False, arrows=False, font_size=20, node_size=4500, node_color='#7DCACA')
-    node_labels = nx.get_node_attributes(G,'type')
-    nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=20)
-    plt.savefig('tree.png')
-    # write_dot(G, "graph.dot")
-    # ! dot -Tpdf graph.dot -o graph.pdf
+ #   pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
+ #   plt.figure(3,figsize=(45,45))
+ #   # 'E0E0E0', 'FFCC99', '#82A9D0', '#F9C56A', '#FF9999', '#A4CACA', '#7DCACA' '#F6D66F'
+ #   nx.draw(G, pos, with_labels=False, arrows=False, font_size=20, node_size=4500, node_color='#7DCACA')
+ #   node_labels = nx.get_node_attributes(G,'type')
+ #   nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=20)
+ #   plt.savefig('tree.png')
+ #   # write_dot(G, "graph.dot")
+ #   # ! dot -Tpdf graph.dot -o graph.pdf
     # run the following to print out the tree in a pdf: dot -Tpdf graph.dot -o graph.pdf
 # ----------------------------------------------------------------------
