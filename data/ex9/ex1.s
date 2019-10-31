@@ -1,7 +1,7 @@
   .file "ex1.c"
   .option nopic
   .text
-  .comm vars,16,8
+  .comm vars,8,8
   .align  1
   .globl ex1
   .type ex1, @function
@@ -9,26 +9,14 @@ ex1:
   addi  sp,sp,-32
   sd  s0,24(sp)
   addi  s0,sp,32
-  li a1, 0
-  sd a1, 0(a0)
-  ld a1, 0(a0)
-  li a2, 3
-  sub a1, a1, a2
-  sgtz a1, a1
-  beqz a1, .L2
-  ld a1, 0(a0)
-  li a2, 3
+  li a1, 1
+  li a2, 2
   add a1, a1, a2
+  li a2, 3
+  li a3, 4
+  add a2, a2, a3
+  mul a1, a1, a2
   sd a1, 0(a0)
-  j .L3
-.L2:
-  ld t2, 0(a0)
-  li a1, 10
-  add t2, t2, a1
-  sd t2, 0(a0)
-.L3:
-  li t1, 16
-  sd t1, 8(a0)
   ld  s0,24(sp)
   addi  sp,sp,32
   jr  ra
