@@ -187,6 +187,7 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
     labels = []
     maxlabel = 2
     while len(cst) > 0:
+        print(stack_height)
         item = cst.pop()
         if isinstance(item, int):
             assembly += '\n  li '+stackmap[stack_height]+', '+str(item)
@@ -229,11 +230,11 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
                 assembly += '\n  sgtz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
             elif item == '<=':
-                assembly += '\n addi ' + stackmap[stack_height-1] + ', 1'
+                assembly += '\n  addi ' + stackmap[stack_height-1] + ', 1'
                 assembly += '\n  slt '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
             elif item == '>=':
-                assembly += '\n addi ' + stackmap[stack_height-2] + ', 1'
+                assembly += '\n  addi ' + stackmap[stack_height-2] + ', 1'
                 assembly += '\n  slt '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
             elif item == '=':
@@ -254,7 +255,6 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             n = item.split()[1]
             to = item.split()[2]
             assembly += '\n  j .L' + to + '\n.L' + n+':'
-            stack_height -= 1
             labels.append(maxlabel)
         elif 'OD' in item:
             to = item.split()[1]
@@ -268,11 +268,9 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             n = item.split()[2]
             to = item.split()[1]
             assembly += '\n  j .L' + to + '\n.L' + n+':'
-            stack_height -= 1
         elif 'FI' in item:
             n = item.split()[1]
             assembly += '\n.L' + n+':'
-            stack_height -= 1
 
     return assembly
 
