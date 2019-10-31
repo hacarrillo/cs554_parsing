@@ -188,7 +188,6 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
     maxlabel = 2
     while len(cst) > 0:
         item = cst.pop()
-        print(item)
         if isinstance(item, int):
             assembly += '\n  li '+stackmap[stack_height]+', '+str(item)
             stack_height += 1
@@ -235,7 +234,7 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
             elif item == '>=':
                 assembly += '\n addi ' + stackmap[stack_height-2] + ', 1'
-                assembly += '\n  slt'
+                assembly += '\n  slt '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
             elif item == '=':
                 assembly += '\n  sub '
