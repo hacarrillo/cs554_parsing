@@ -14,7 +14,7 @@ import pydot
 from networkx.drawing.nx_pydot import write_dot
 
 
-stackmap = ['a1','a2','a3','a4','a5','t0','t1','t2']
+stackmap = ['a1','a2','a3','a4','a5','a6','a7','t0','t1','t2','t3','t4','t5','t6']
 maxl = 2
 # assign, booleans, skip, if, while, expr
 def to_stack(ast):
@@ -65,6 +65,8 @@ def to_stack(ast):
         res.append('OD ' + str(l))
         return res
     elif ('ID' in derivation or 'INT' in derivation or 'TRUE' in derivation or 'FALSE' in derivation) and ld == 1:
+        return [ast[0][1]]
+    elif ['SKIP'] == derivation:
         return [ast[0][1]]
     elif ld == 1:
         return to_stack(ast[0][1])
@@ -186,6 +188,7 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
     maxlabel = 2
     while len(cst) > 0:
         item = cst.pop()
+        print(item)
         if isinstance(item, int):
             assembly += '\n  li '+stackmap[stack_height]+', '+str(item)
             stack_height += 1

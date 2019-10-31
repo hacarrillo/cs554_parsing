@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'commandAND ASSIGN COMMENT DO ELSE EQUAL FALSE FI GREATER GREATEREQUAL ID IF INT LESS LESSEQUAL LPAREN MINUS NOT OD OR PLUS RPAREN SEMICOLON SKIP THEN TIMES TRUE WHILEcommand : command SEMICOLON newcommandcommand : newcommandnewcommand : SKIPnewcommand : assignmentnewcommand : WHILE bool DO command ODnewcommand : IF bool THEN command ELSE command FIassignment : ID ASSIGN expressionnewcommand : expression : expression PLUS termexpression : expression MINUS termexpression : termterm : term TIMES factorterm : factorfactor : INTfactor : IDfactor : PLUS INTfactor : MINUS INTfactor : LPAREN expression RPARENbool : bool OR newboolbool : newboolbool : bool AND newboolnewbool : expression GREATER expressionnewbool : expression LESS expressionnewbool : expression GREATEREQUAL expressionnewbool : expression LESSEQUAL expressionnewbool : expression EQUAL expressionnewbool : NOT LPAREN bool RPARENnewbool : TRUEnewbool : FALSE'
+_lr_signature = 'commandAND ASSIGN COMMENT DO ELSE EQUAL FALSE FI GREATER GREATEREQUAL ID IF INT LESS LESSEQUAL LPAREN MINUS NOT OD OR PLUS RPAREN SEMICOLON SKIP THEN TIMES TRUE WHILEcommand : command SEMICOLON newcommandcommand : newcommandnewcommand : SKIPnewcommand : assignmentnewcommand : WHILE bool DO command ODnewcommand : IF bool THEN command ELSE command FIassignment : ID ASSIGN expressionnewcommand : expression : expression PLUS termexpression : expression MINUS termexpression : termterm : term TIMES factorterm : factorfactor : INTfactor : IDfactor : PLUS INTfactor : MINUS INTfactor : LPAREN expression RPARENbool : bool OR newboolbool : newboolnewbool : newbool AND fboolnewbool : fboolfbool : expression GREATER expressionfbool : expression LESS expressionfbool : expression GREATEREQUAL expressionfbool : expression LESSEQUAL expressionfbool : expression EQUAL expressionfbool : NOT LPAREN bool RPARENfbool : TRUEfbool : FALSE'
     
-_lr_action_items = {'SKIP':([0,8,25,40,58,],[3,3,3,3,3,]),'WHILE':([0,8,25,40,58,],[5,5,5,5,5,]),'IF':([0,8,25,40,58,],[6,6,6,6,6,]),'SEMICOLON':([0,1,2,3,4,8,17,19,20,21,24,25,37,39,40,41,42,50,51,53,54,55,56,58,59,60,],[-8,8,-2,-3,-4,-8,-11,-13,-14,-15,-1,-8,-16,-17,-8,-7,8,-9,-10,-18,-12,8,-5,-8,8,-6,]),'$end':([0,1,2,3,4,8,17,19,20,21,24,37,39,41,50,51,53,54,56,60,],[-8,0,-2,-3,-4,-8,-11,-13,-14,-15,-1,-16,-17,-7,-9,-10,-18,-12,-5,-6,]),'ID':([0,5,6,8,13,23,25,26,27,28,29,30,31,32,33,34,35,38,40,58,],[7,21,21,7,21,21,7,21,21,21,21,21,21,21,21,21,21,21,7,7,]),'OD':([2,3,4,8,17,19,20,21,24,25,37,39,41,42,50,51,53,54,56,60,],[-2,-3,-4,-8,-11,-13,-14,-15,-1,-8,-16,-17,-7,56,-9,-10,-18,-12,-5,-6,]),'ELSE':([2,3,4,8,17,19,20,21,24,37,39,40,41,50,51,53,54,55,56,60,],[-2,-3,-4,-8,-11,-13,-14,-15,-1,-16,-17,-8,-7,-9,-10,-18,-12,58,-5,-6,]),'FI':([2,3,4,8,17,19,20,21,24,37,39,41,50,51,53,54,56,58,59,60,],[-2,-3,-4,-8,-11,-13,-14,-15,-1,-16,-17,-7,-9,-10,-18,-12,-5,-8,60,-6,]),'NOT':([5,6,26,27,35,],[12,12,12,12,12,]),'TRUE':([5,6,26,27,35,],[14,14,14,14,14,]),'FALSE':([5,6,26,27,35,],[15,15,15,15,15,]),'INT':([5,6,13,16,18,23,26,27,28,29,30,31,32,33,34,35,38,],[20,20,20,37,39,20,20,20,20,20,20,20,20,20,20,20,20,]),'PLUS':([5,6,11,13,17,19,20,21,23,26,27,28,29,30,31,32,33,34,35,36,37,38,39,41,45,46,47,48,49,50,51,53,54,],[16,16,33,16,-11,-13,-14,-15,16,16,16,16,16,16,16,16,16,16,16,33,-16,16,-17,33,33,33,33,33,33,-9,-10,-18,-12,]),'MINUS':([5,6,11,13,17,19,20,21,23,26,27,28,29,30,31,32,33,34,35,36,37,38,39,41,45,46,47,48,49,50,51,53,54,],[18,18,34,18,-11,-13,-14,-15,18,18,18,18,18,18,18,18,18,18,18,34,-16,18,-17,34,34,34,34,34,34,-9,-10,-18,-12,]),'LPAREN':([5,6,12,13,23,26,27,28,29,30,31,32,33,34,35,38,],[13,13,35,13,13,13,13,13,13,13,13,13,13,13,13,13,]),'ASSIGN':([7,],[23,]),'DO':([9,10,14,15,17,19,20,21,37,39,43,44,45,46,47,48,49,50,51,53,54,57,],[25,-20,-28,-29,-11,-13,-14,-15,-16,-17,-19,-21,-22,-23,-24,-25,-26,-9,-10,-18,-12,-27,]),'OR':([9,10,14,15,17,19,20,21,22,37,39,43,44,45,46,47,48,49,50,51,52,53,54,57,],[26,-20,-28,-29,-11,-13,-14,-15,26,-16,-17,-19,-21,-22,-23,-24,-25,-26,-9,-10,26,-18,-12,-27,]),'AND':([9,10,14,15,17,19,20,21,22,37,39,43,44,45,46,47,48,49,50,51,52,53,54,57,],[27,-20,-28,-29,-11,-13,-14,-15,27,-16,-17,-19,-21,-22,-23,-24,-25,-26,-9,-10,27,-18,-12,-27,]),'THEN':([10,14,15,17,19,20,21,22,37,39,43,44,45,46,47,48,49,50,51,53,54,57,],[-20,-28,-29,-11,-13,-14,-15,40,-16,-17,-19,-21,-22,-23,-24,-25,-26,-9,-10,-18,-12,-27,]),'RPAREN':([10,14,15,17,19,20,21,36,37,39,43,44,45,46,47,48,49,50,51,52,53,54,57,],[-20,-28,-29,-11,-13,-14,-15,53,-16,-17,-19,-21,-22,-23,-24,-25,-26,-9,-10,57,-18,-12,-27,]),'GREATER':([11,17,19,20,21,37,39,50,51,53,54,],[28,-11,-13,-14,-15,-16,-17,-9,-10,-18,-12,]),'LESS':([11,17,19,20,21,37,39,50,51,53,54,],[29,-11,-13,-14,-15,-16,-17,-9,-10,-18,-12,]),'GREATEREQUAL':([11,17,19,20,21,37,39,50,51,53,54,],[30,-11,-13,-14,-15,-16,-17,-9,-10,-18,-12,]),'LESSEQUAL':([11,17,19,20,21,37,39,50,51,53,54,],[31,-11,-13,-14,-15,-16,-17,-9,-10,-18,-12,]),'EQUAL':([11,17,19,20,21,37,39,50,51,53,54,],[32,-11,-13,-14,-15,-16,-17,-9,-10,-18,-12,]),'TIMES':([17,19,20,21,37,39,50,51,53,54,],[38,-13,-14,-15,-16,-17,38,38,-18,-12,]),}
+_lr_action_items = {'SKIP':([0,8,26,41,59,],[3,3,3,3,3,]),'WHILE':([0,8,26,41,59,],[5,5,5,5,5,]),'IF':([0,8,26,41,59,],[6,6,6,6,6,]),'SEMICOLON':([0,1,2,3,4,8,18,20,21,22,25,26,38,40,41,42,43,51,52,54,55,56,57,59,60,61,],[-8,8,-2,-3,-4,-8,-11,-13,-14,-15,-1,-8,-16,-17,-8,-7,8,-9,-10,-18,-12,8,-5,-8,8,-6,]),'$end':([0,1,2,3,4,8,18,20,21,22,25,38,40,42,51,52,54,55,57,61,],[-8,0,-2,-3,-4,-8,-11,-13,-14,-15,-1,-16,-17,-7,-9,-10,-18,-12,-5,-6,]),'ID':([0,5,6,8,14,24,26,27,28,29,30,31,32,33,34,35,36,39,41,59,],[7,22,22,7,22,22,7,22,22,22,22,22,22,22,22,22,22,22,7,7,]),'OD':([2,3,4,8,18,20,21,22,25,26,38,40,42,43,51,52,54,55,57,61,],[-2,-3,-4,-8,-11,-13,-14,-15,-1,-8,-16,-17,-7,57,-9,-10,-18,-12,-5,-6,]),'ELSE':([2,3,4,8,18,20,21,22,25,38,40,41,42,51,52,54,55,56,57,61,],[-2,-3,-4,-8,-11,-13,-14,-15,-1,-16,-17,-8,-7,-9,-10,-18,-12,59,-5,-6,]),'FI':([2,3,4,8,18,20,21,22,25,38,40,42,51,52,54,55,57,59,60,61,],[-2,-3,-4,-8,-11,-13,-14,-15,-1,-16,-17,-7,-9,-10,-18,-12,-5,-8,61,-6,]),'NOT':([5,6,27,28,36,],[13,13,13,13,13,]),'TRUE':([5,6,27,28,36,],[15,15,15,15,15,]),'FALSE':([5,6,27,28,36,],[16,16,16,16,16,]),'INT':([5,6,14,17,19,24,27,28,29,30,31,32,33,34,35,36,39,],[21,21,21,38,40,21,21,21,21,21,21,21,21,21,21,21,21,]),'PLUS':([5,6,12,14,18,20,21,22,24,27,28,29,30,31,32,33,34,35,36,37,38,39,40,42,46,47,48,49,50,51,52,54,55,],[17,17,34,17,-11,-13,-14,-15,17,17,17,17,17,17,17,17,17,17,17,34,-16,17,-17,34,34,34,34,34,34,-9,-10,-18,-12,]),'MINUS':([5,6,12,14,18,20,21,22,24,27,28,29,30,31,32,33,34,35,36,37,38,39,40,42,46,47,48,49,50,51,52,54,55,],[19,19,35,19,-11,-13,-14,-15,19,19,19,19,19,19,19,19,19,19,19,35,-16,19,-17,35,35,35,35,35,35,-9,-10,-18,-12,]),'LPAREN':([5,6,13,14,24,27,28,29,30,31,32,33,34,35,36,39,],[14,14,36,14,14,14,14,14,14,14,14,14,14,14,14,14,]),'ASSIGN':([7,],[24,]),'DO':([9,10,11,15,16,18,20,21,22,38,40,44,45,46,47,48,49,50,51,52,54,55,58,],[26,-20,-22,-29,-30,-11,-13,-14,-15,-16,-17,-19,-21,-23,-24,-25,-26,-27,-9,-10,-18,-12,-28,]),'OR':([9,10,11,15,16,18,20,21,22,23,38,40,44,45,46,47,48,49,50,51,52,53,54,55,58,],[27,-20,-22,-29,-30,-11,-13,-14,-15,27,-16,-17,-19,-21,-23,-24,-25,-26,-27,-9,-10,27,-18,-12,-28,]),'THEN':([10,11,15,16,18,20,21,22,23,38,40,44,45,46,47,48,49,50,51,52,54,55,58,],[-20,-22,-29,-30,-11,-13,-14,-15,41,-16,-17,-19,-21,-23,-24,-25,-26,-27,-9,-10,-18,-12,-28,]),'RPAREN':([10,11,15,16,18,20,21,22,37,38,40,44,45,46,47,48,49,50,51,52,53,54,55,58,],[-20,-22,-29,-30,-11,-13,-14,-15,54,-16,-17,-19,-21,-23,-24,-25,-26,-27,-9,-10,58,-18,-12,-28,]),'AND':([10,11,15,16,18,20,21,22,38,40,44,45,46,47,48,49,50,51,52,54,55,58,],[28,-22,-29,-30,-11,-13,-14,-15,-16,-17,28,-21,-23,-24,-25,-26,-27,-9,-10,-18,-12,-28,]),'GREATER':([12,18,20,21,22,38,40,51,52,54,55,],[29,-11,-13,-14,-15,-16,-17,-9,-10,-18,-12,]),'LESS':([12,18,20,21,22,38,40,51,52,54,55,],[30,-11,-13,-14,-15,-16,-17,-9,-10,-18,-12,]),'GREATEREQUAL':([12,18,20,21,22,38,40,51,52,54,55,],[31,-11,-13,-14,-15,-16,-17,-9,-10,-18,-12,]),'LESSEQUAL':([12,18,20,21,22,38,40,51,52,54,55,],[32,-11,-13,-14,-15,-16,-17,-9,-10,-18,-12,]),'EQUAL':([12,18,20,21,22,38,40,51,52,54,55,],[33,-11,-13,-14,-15,-16,-17,-9,-10,-18,-12,]),'TIMES':([18,20,21,22,38,40,51,52,54,55,],[39,-13,-14,-15,-16,-17,39,39,-18,-12,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'command':([0,25,40,58,],[1,42,55,59,]),'newcommand':([0,8,25,40,58,],[2,24,2,2,2,]),'assignment':([0,8,25,40,58,],[4,4,4,4,4,]),'bool':([5,6,35,],[9,22,52,]),'newbool':([5,6,26,27,35,],[10,10,43,44,10,]),'expression':([5,6,13,23,26,27,28,29,30,31,32,35,],[11,11,36,41,11,11,45,46,47,48,49,11,]),'term':([5,6,13,23,26,27,28,29,30,31,32,33,34,35,],[17,17,17,17,17,17,17,17,17,17,17,50,51,17,]),'factor':([5,6,13,23,26,27,28,29,30,31,32,33,34,35,38,],[19,19,19,19,19,19,19,19,19,19,19,19,19,19,54,]),}
+_lr_goto_items = {'command':([0,26,41,59,],[1,43,56,60,]),'newcommand':([0,8,26,41,59,],[2,25,2,2,2,]),'assignment':([0,8,26,41,59,],[4,4,4,4,4,]),'bool':([5,6,36,],[9,23,53,]),'newbool':([5,6,27,36,],[10,10,44,10,]),'fbool':([5,6,27,28,36,],[11,11,11,45,11,]),'expression':([5,6,14,24,27,28,29,30,31,32,33,36,],[12,12,37,42,12,12,46,47,48,49,50,12,]),'term':([5,6,14,24,27,28,29,30,31,32,33,34,35,36,],[18,18,18,18,18,18,18,18,18,18,18,51,52,18,]),'factor':([5,6,14,24,27,28,29,30,31,32,33,34,35,36,39,],[20,20,20,20,20,20,20,20,20,20,20,20,20,20,55,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,33 +27,34 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> command","S'",1,None,None,None),
-  ('command -> command SEMICOLON newcommand','command',3,'p_command','parser.py',12),
-  ('command -> newcommand','command',1,'p_command_newcommand','parser.py',16),
-  ('newcommand -> SKIP','newcommand',1,'p_newcommand_skip','parser.py',20),
-  ('newcommand -> assignment','newcommand',1,'p_newcommand_assign','parser.py',24),
-  ('newcommand -> WHILE bool DO command OD','newcommand',5,'p_newcommand_while','parser.py',28),
-  ('newcommand -> IF bool THEN command ELSE command FI','newcommand',7,'p_newcommand_ifelse','parser.py',32),
-  ('assignment -> ID ASSIGN expression','assignment',3,'p_assignment','parser.py',36),
-  ('newcommand -> <empty>','newcommand',0,'p_start_empty','parser.py',40),
-  ('expression -> expression PLUS term','expression',3,'p_expression_plus','parser.py',45),
-  ('expression -> expression MINUS term','expression',3,'p_expression_minus','parser.py',49),
-  ('expression -> term','expression',1,'p_expression_term','parser.py',53),
-  ('term -> term TIMES factor','term',3,'p_term_times','parser.py',57),
-  ('term -> factor','term',1,'p_term_factor','parser.py',61),
-  ('factor -> INT','factor',1,'p_factor_num','parser.py',65),
-  ('factor -> ID','factor',1,'p_factor_id','parser.py',69),
-  ('factor -> PLUS INT','factor',2,'p_factor_pnum','parser.py',73),
-  ('factor -> MINUS INT','factor',2,'p_factor_mnum','parser.py',77),
-  ('factor -> LPAREN expression RPAREN','factor',3,'p_factor_expr','parser.py',81),
-  ('bool -> bool OR newbool','bool',3,'p_bool_or','parser.py',87),
-  ('bool -> newbool','bool',1,'p_bool_newbool','parser.py',91),
-  ('bool -> bool AND newbool','bool',3,'p_bool_and','parser.py',95),
-  ('newbool -> expression GREATER expression','newbool',3,'p_newbool_g','parser.py',99),
-  ('newbool -> expression LESS expression','newbool',3,'p_newbool_l','parser.py',103),
-  ('newbool -> expression GREATEREQUAL expression','newbool',3,'p_newbool_ge','parser.py',107),
-  ('newbool -> expression LESSEQUAL expression','newbool',3,'p_newbool_le','parser.py',111),
-  ('newbool -> expression EQUAL expression','newbool',3,'p_bool_eq','parser.py',115),
-  ('newbool -> NOT LPAREN bool RPAREN','newbool',4,'p_bool_not','parser.py',119),
-  ('newbool -> TRUE','newbool',1,'p_bool_true','parser.py',123),
-  ('newbool -> FALSE','newbool',1,'p_bool_false','parser.py',127),
+  ('command -> command SEMICOLON newcommand','command',3,'p_command','parser.py',13),
+  ('command -> newcommand','command',1,'p_command_newcommand','parser.py',17),
+  ('newcommand -> SKIP','newcommand',1,'p_newcommand_skip','parser.py',21),
+  ('newcommand -> assignment','newcommand',1,'p_newcommand_assign','parser.py',25),
+  ('newcommand -> WHILE bool DO command OD','newcommand',5,'p_newcommand_while','parser.py',29),
+  ('newcommand -> IF bool THEN command ELSE command FI','newcommand',7,'p_newcommand_ifelse','parser.py',33),
+  ('assignment -> ID ASSIGN expression','assignment',3,'p_assignment','parser.py',37),
+  ('newcommand -> <empty>','newcommand',0,'p_start_empty','parser.py',41),
+  ('expression -> expression PLUS term','expression',3,'p_expression_plus','parser.py',46),
+  ('expression -> expression MINUS term','expression',3,'p_expression_minus','parser.py',50),
+  ('expression -> term','expression',1,'p_expression_term','parser.py',54),
+  ('term -> term TIMES factor','term',3,'p_term_times','parser.py',58),
+  ('term -> factor','term',1,'p_term_factor','parser.py',62),
+  ('factor -> INT','factor',1,'p_factor_num','parser.py',66),
+  ('factor -> ID','factor',1,'p_factor_id','parser.py',70),
+  ('factor -> PLUS INT','factor',2,'p_factor_pnum','parser.py',74),
+  ('factor -> MINUS INT','factor',2,'p_factor_mnum','parser.py',78),
+  ('factor -> LPAREN expression RPAREN','factor',3,'p_factor_expr','parser.py',82),
+  ('bool -> bool OR newbool','bool',3,'p_bool_or','parser.py',88),
+  ('bool -> newbool','bool',1,'p_bool_newbool','parser.py',92),
+  ('newbool -> newbool AND fbool','newbool',3,'p_newbool_and','parser.py',96),
+  ('newbool -> fbool','newbool',1,'p_newbool_fbool','parser.py',100),
+  ('fbool -> expression GREATER expression','fbool',3,'p_fbool_g','parser.py',104),
+  ('fbool -> expression LESS expression','fbool',3,'p_fbool_l','parser.py',108),
+  ('fbool -> expression GREATEREQUAL expression','fbool',3,'p_fbool_ge','parser.py',112),
+  ('fbool -> expression LESSEQUAL expression','fbool',3,'p_fbool_le','parser.py',116),
+  ('fbool -> expression EQUAL expression','fbool',3,'p_fbool_eq','parser.py',120),
+  ('fbool -> NOT LPAREN bool RPAREN','fbool',4,'p_fbool_not','parser.py',124),
+  ('fbool -> TRUE','fbool',1,'p_fbool_true','parser.py',128),
+  ('fbool -> FALSE','fbool',1,'p_fbool_false','parser.py',132),
 ]

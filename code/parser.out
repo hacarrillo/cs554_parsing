@@ -27,15 +27,16 @@ Rule 17    factor -> MINUS INT
 Rule 18    factor -> LPAREN expression RPAREN
 Rule 19    bool -> bool OR newbool
 Rule 20    bool -> newbool
-Rule 21    bool -> bool AND newbool
-Rule 22    newbool -> expression GREATER expression
-Rule 23    newbool -> expression LESS expression
-Rule 24    newbool -> expression GREATEREQUAL expression
-Rule 25    newbool -> expression LESSEQUAL expression
-Rule 26    newbool -> expression EQUAL expression
-Rule 27    newbool -> NOT LPAREN bool RPAREN
-Rule 28    newbool -> TRUE
-Rule 29    newbool -> FALSE
+Rule 21    newbool -> newbool AND fbool
+Rule 22    newbool -> fbool
+Rule 23    fbool -> expression GREATER expression
+Rule 24    fbool -> expression LESS expression
+Rule 25    fbool -> expression GREATEREQUAL expression
+Rule 26    fbool -> expression LESSEQUAL expression
+Rule 27    fbool -> expression EQUAL expression
+Rule 28    fbool -> NOT LPAREN bool RPAREN
+Rule 29    fbool -> TRUE
+Rule 30    fbool -> FALSE
 
 Terminals, with rules where they appear
 
@@ -44,38 +45,39 @@ ASSIGN               : 7
 COMMENT              : 
 DO                   : 5
 ELSE                 : 6
-EQUAL                : 26
-FALSE                : 29
+EQUAL                : 27
+FALSE                : 30
 FI                   : 6
-GREATER              : 22
-GREATEREQUAL         : 24
+GREATER              : 23
+GREATEREQUAL         : 25
 ID                   : 7 15
 IF                   : 6
 INT                  : 14 16 17
-LESS                 : 23
-LESSEQUAL            : 25
-LPAREN               : 18 27
+LESS                 : 24
+LESSEQUAL            : 26
+LPAREN               : 18 28
 MINUS                : 10 17
-NOT                  : 27
+NOT                  : 28
 OD                   : 5
 OR                   : 19
 PLUS                 : 9 16
-RPAREN               : 18 27
+RPAREN               : 18 28
 SEMICOLON            : 1
 SKIP                 : 3
 THEN                 : 6
 TIMES                : 12
-TRUE                 : 28
+TRUE                 : 29
 WHILE                : 5
 error                : 
 
 Nonterminals, with rules where they appear
 
 assignment           : 4
-bool                 : 5 6 19 21 27
+bool                 : 5 6 19 28
 command              : 1 5 6 6 0
-expression           : 7 9 10 18 22 22 23 23 24 24 25 25 26 26
+expression           : 7 9 10 18 23 23 24 24 25 25 26 26 27 27
 factor               : 12 13
+fbool                : 21 22
 newbool              : 19 20 21
 newcommand           : 1 2
 term                 : 9 10 11 12
@@ -151,15 +153,16 @@ state 5
     (5) newcommand -> WHILE . bool DO command OD
     (19) bool -> . bool OR newbool
     (20) bool -> . newbool
-    (21) bool -> . bool AND newbool
-    (22) newbool -> . expression GREATER expression
-    (23) newbool -> . expression LESS expression
-    (24) newbool -> . expression GREATEREQUAL expression
-    (25) newbool -> . expression LESSEQUAL expression
-    (26) newbool -> . expression EQUAL expression
-    (27) newbool -> . NOT LPAREN bool RPAREN
-    (28) newbool -> . TRUE
-    (29) newbool -> . FALSE
+    (21) newbool -> . newbool AND fbool
+    (22) newbool -> . fbool
+    (23) fbool -> . expression GREATER expression
+    (24) fbool -> . expression LESS expression
+    (25) fbool -> . expression GREATEREQUAL expression
+    (26) fbool -> . expression LESSEQUAL expression
+    (27) fbool -> . expression EQUAL expression
+    (28) fbool -> . NOT LPAREN bool RPAREN
+    (29) fbool -> . TRUE
+    (30) fbool -> . FALSE
     (9) expression -> . expression PLUS term
     (10) expression -> . expression MINUS term
     (11) expression -> . term
@@ -171,35 +174,37 @@ state 5
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    NOT             shift and go to state 12
-    TRUE            shift and go to state 14
-    FALSE           shift and go to state 15
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    NOT             shift and go to state 13
+    TRUE            shift and go to state 15
+    FALSE           shift and go to state 16
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
     bool                           shift and go to state 9
     newbool                        shift and go to state 10
-    expression                     shift and go to state 11
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
+    fbool                          shift and go to state 11
+    expression                     shift and go to state 12
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
 state 6
 
     (6) newcommand -> IF . bool THEN command ELSE command FI
     (19) bool -> . bool OR newbool
     (20) bool -> . newbool
-    (21) bool -> . bool AND newbool
-    (22) newbool -> . expression GREATER expression
-    (23) newbool -> . expression LESS expression
-    (24) newbool -> . expression GREATEREQUAL expression
-    (25) newbool -> . expression LESSEQUAL expression
-    (26) newbool -> . expression EQUAL expression
-    (27) newbool -> . NOT LPAREN bool RPAREN
-    (28) newbool -> . TRUE
-    (29) newbool -> . FALSE
+    (21) newbool -> . newbool AND fbool
+    (22) newbool -> . fbool
+    (23) fbool -> . expression GREATER expression
+    (24) fbool -> . expression LESS expression
+    (25) fbool -> . expression GREATEREQUAL expression
+    (26) fbool -> . expression LESSEQUAL expression
+    (27) fbool -> . expression EQUAL expression
+    (28) fbool -> . NOT LPAREN bool RPAREN
+    (29) fbool -> . TRUE
+    (30) fbool -> . FALSE
     (9) expression -> . expression PLUS term
     (10) expression -> . expression MINUS term
     (11) expression -> . term
@@ -211,26 +216,27 @@ state 6
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    NOT             shift and go to state 12
-    TRUE            shift and go to state 14
-    FALSE           shift and go to state 15
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    NOT             shift and go to state 13
+    TRUE            shift and go to state 15
+    FALSE           shift and go to state 16
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
-    bool                           shift and go to state 22
+    bool                           shift and go to state 23
     newbool                        shift and go to state 10
-    expression                     shift and go to state 11
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
+    fbool                          shift and go to state 11
+    expression                     shift and go to state 12
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
 state 7
 
     (7) assignment -> ID . ASSIGN expression
 
-    ASSIGN          shift and go to state 23
+    ASSIGN          shift and go to state 24
 
 
 state 8
@@ -253,58 +259,68 @@ state 8
     FI              reduce using rule 8 (newcommand -> .)
     ID              shift and go to state 7
 
-    newcommand                     shift and go to state 24
+    newcommand                     shift and go to state 25
     assignment                     shift and go to state 4
 
 state 9
 
     (5) newcommand -> WHILE bool . DO command OD
     (19) bool -> bool . OR newbool
-    (21) bool -> bool . AND newbool
 
-    DO              shift and go to state 25
-    OR              shift and go to state 26
-    AND             shift and go to state 27
+    DO              shift and go to state 26
+    OR              shift and go to state 27
 
 
 state 10
 
     (20) bool -> newbool .
+    (21) newbool -> newbool . AND fbool
 
     DO              reduce using rule 20 (bool -> newbool .)
     OR              reduce using rule 20 (bool -> newbool .)
-    AND             reduce using rule 20 (bool -> newbool .)
     THEN            reduce using rule 20 (bool -> newbool .)
     RPAREN          reduce using rule 20 (bool -> newbool .)
+    AND             shift and go to state 28
 
 
 state 11
 
-    (22) newbool -> expression . GREATER expression
-    (23) newbool -> expression . LESS expression
-    (24) newbool -> expression . GREATEREQUAL expression
-    (25) newbool -> expression . LESSEQUAL expression
-    (26) newbool -> expression . EQUAL expression
-    (9) expression -> expression . PLUS term
-    (10) expression -> expression . MINUS term
+    (22) newbool -> fbool .
 
-    GREATER         shift and go to state 28
-    LESS            shift and go to state 29
-    GREATEREQUAL    shift and go to state 30
-    LESSEQUAL       shift and go to state 31
-    EQUAL           shift and go to state 32
-    PLUS            shift and go to state 33
-    MINUS           shift and go to state 34
+    AND             reduce using rule 22 (newbool -> fbool .)
+    DO              reduce using rule 22 (newbool -> fbool .)
+    OR              reduce using rule 22 (newbool -> fbool .)
+    THEN            reduce using rule 22 (newbool -> fbool .)
+    RPAREN          reduce using rule 22 (newbool -> fbool .)
 
 
 state 12
 
-    (27) newbool -> NOT . LPAREN bool RPAREN
+    (23) fbool -> expression . GREATER expression
+    (24) fbool -> expression . LESS expression
+    (25) fbool -> expression . GREATEREQUAL expression
+    (26) fbool -> expression . LESSEQUAL expression
+    (27) fbool -> expression . EQUAL expression
+    (9) expression -> expression . PLUS term
+    (10) expression -> expression . MINUS term
 
-    LPAREN          shift and go to state 35
+    GREATER         shift and go to state 29
+    LESS            shift and go to state 30
+    GREATEREQUAL    shift and go to state 31
+    LESSEQUAL       shift and go to state 32
+    EQUAL           shift and go to state 33
+    PLUS            shift and go to state 34
+    MINUS           shift and go to state 35
 
 
 state 13
+
+    (28) fbool -> NOT . LPAREN bool RPAREN
+
+    LPAREN          shift and go to state 36
+
+
+state 14
 
     (18) factor -> LPAREN . expression RPAREN
     (9) expression -> . expression PLUS term
@@ -318,46 +334,46 @@ state 13
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
-    expression                     shift and go to state 36
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
-
-state 14
-
-    (28) newbool -> TRUE .
-
-    DO              reduce using rule 28 (newbool -> TRUE .)
-    OR              reduce using rule 28 (newbool -> TRUE .)
-    AND             reduce using rule 28 (newbool -> TRUE .)
-    THEN            reduce using rule 28 (newbool -> TRUE .)
-    RPAREN          reduce using rule 28 (newbool -> TRUE .)
-
+    expression                     shift and go to state 37
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
 state 15
 
-    (29) newbool -> FALSE .
+    (29) fbool -> TRUE .
 
-    DO              reduce using rule 29 (newbool -> FALSE .)
-    OR              reduce using rule 29 (newbool -> FALSE .)
-    AND             reduce using rule 29 (newbool -> FALSE .)
-    THEN            reduce using rule 29 (newbool -> FALSE .)
-    RPAREN          reduce using rule 29 (newbool -> FALSE .)
+    AND             reduce using rule 29 (fbool -> TRUE .)
+    DO              reduce using rule 29 (fbool -> TRUE .)
+    OR              reduce using rule 29 (fbool -> TRUE .)
+    THEN            reduce using rule 29 (fbool -> TRUE .)
+    RPAREN          reduce using rule 29 (fbool -> TRUE .)
 
 
 state 16
 
-    (16) factor -> PLUS . INT
+    (30) fbool -> FALSE .
 
-    INT             shift and go to state 37
+    AND             reduce using rule 30 (fbool -> FALSE .)
+    DO              reduce using rule 30 (fbool -> FALSE .)
+    OR              reduce using rule 30 (fbool -> FALSE .)
+    THEN            reduce using rule 30 (fbool -> FALSE .)
+    RPAREN          reduce using rule 30 (fbool -> FALSE .)
 
 
 state 17
+
+    (16) factor -> PLUS . INT
+
+    INT             shift and go to state 38
+
+
+state 18
 
     (11) expression -> term .
     (12) term -> term . TIMES factor
@@ -375,21 +391,21 @@ state 17
     OD              reduce using rule 11 (expression -> term .)
     ELSE            reduce using rule 11 (expression -> term .)
     FI              reduce using rule 11 (expression -> term .)
+    AND             reduce using rule 11 (expression -> term .)
     DO              reduce using rule 11 (expression -> term .)
     OR              reduce using rule 11 (expression -> term .)
-    AND             reduce using rule 11 (expression -> term .)
     THEN            reduce using rule 11 (expression -> term .)
-    TIMES           shift and go to state 38
-
-
-state 18
-
-    (17) factor -> MINUS . INT
-
-    INT             shift and go to state 39
+    TIMES           shift and go to state 39
 
 
 state 19
+
+    (17) factor -> MINUS . INT
+
+    INT             shift and go to state 40
+
+
+state 20
 
     (13) term -> factor .
 
@@ -407,13 +423,13 @@ state 19
     OD              reduce using rule 13 (term -> factor .)
     ELSE            reduce using rule 13 (term -> factor .)
     FI              reduce using rule 13 (term -> factor .)
+    AND             reduce using rule 13 (term -> factor .)
     DO              reduce using rule 13 (term -> factor .)
     OR              reduce using rule 13 (term -> factor .)
-    AND             reduce using rule 13 (term -> factor .)
     THEN            reduce using rule 13 (term -> factor .)
 
 
-state 20
+state 21
 
     (14) factor -> INT .
 
@@ -431,13 +447,13 @@ state 20
     OD              reduce using rule 14 (factor -> INT .)
     ELSE            reduce using rule 14 (factor -> INT .)
     FI              reduce using rule 14 (factor -> INT .)
+    AND             reduce using rule 14 (factor -> INT .)
     DO              reduce using rule 14 (factor -> INT .)
     OR              reduce using rule 14 (factor -> INT .)
-    AND             reduce using rule 14 (factor -> INT .)
     THEN            reduce using rule 14 (factor -> INT .)
 
 
-state 21
+state 22
 
     (15) factor -> ID .
 
@@ -455,24 +471,22 @@ state 21
     OD              reduce using rule 15 (factor -> ID .)
     ELSE            reduce using rule 15 (factor -> ID .)
     FI              reduce using rule 15 (factor -> ID .)
+    AND             reduce using rule 15 (factor -> ID .)
     DO              reduce using rule 15 (factor -> ID .)
     OR              reduce using rule 15 (factor -> ID .)
-    AND             reduce using rule 15 (factor -> ID .)
     THEN            reduce using rule 15 (factor -> ID .)
 
 
-state 22
+state 23
 
     (6) newcommand -> IF bool . THEN command ELSE command FI
     (19) bool -> bool . OR newbool
-    (21) bool -> bool . AND newbool
 
-    THEN            shift and go to state 40
-    OR              shift and go to state 26
-    AND             shift and go to state 27
+    THEN            shift and go to state 41
+    OR              shift and go to state 27
 
 
-state 23
+state 24
 
     (7) assignment -> ID ASSIGN . expression
     (9) expression -> . expression PLUS term
@@ -486,17 +500,17 @@ state 23
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
-    expression                     shift and go to state 41
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
+    expression                     shift and go to state 42
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
-state 24
+state 25
 
     (1) command -> command SEMICOLON newcommand .
 
@@ -507,7 +521,7 @@ state 24
     FI              reduce using rule 1 (command -> command SEMICOLON newcommand .)
 
 
-state 25
+state 26
 
     (5) newcommand -> WHILE bool DO . command OD
     (1) command -> . command SEMICOLON newcommand
@@ -526,57 +540,23 @@ state 25
     SEMICOLON       reduce using rule 8 (newcommand -> .)
     ID              shift and go to state 7
 
-    command                        shift and go to state 42
+    command                        shift and go to state 43
     newcommand                     shift and go to state 2
     assignment                     shift and go to state 4
 
-state 26
-
-    (19) bool -> bool OR . newbool
-    (22) newbool -> . expression GREATER expression
-    (23) newbool -> . expression LESS expression
-    (24) newbool -> . expression GREATEREQUAL expression
-    (25) newbool -> . expression LESSEQUAL expression
-    (26) newbool -> . expression EQUAL expression
-    (27) newbool -> . NOT LPAREN bool RPAREN
-    (28) newbool -> . TRUE
-    (29) newbool -> . FALSE
-    (9) expression -> . expression PLUS term
-    (10) expression -> . expression MINUS term
-    (11) expression -> . term
-    (12) term -> . term TIMES factor
-    (13) term -> . factor
-    (14) factor -> . INT
-    (15) factor -> . ID
-    (16) factor -> . PLUS INT
-    (17) factor -> . MINUS INT
-    (18) factor -> . LPAREN expression RPAREN
-
-    NOT             shift and go to state 12
-    TRUE            shift and go to state 14
-    FALSE           shift and go to state 15
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
-
-    newbool                        shift and go to state 43
-    expression                     shift and go to state 11
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
-
 state 27
 
-    (21) bool -> bool AND . newbool
-    (22) newbool -> . expression GREATER expression
-    (23) newbool -> . expression LESS expression
-    (24) newbool -> . expression GREATEREQUAL expression
-    (25) newbool -> . expression LESSEQUAL expression
-    (26) newbool -> . expression EQUAL expression
-    (27) newbool -> . NOT LPAREN bool RPAREN
-    (28) newbool -> . TRUE
-    (29) newbool -> . FALSE
+    (19) bool -> bool OR . newbool
+    (21) newbool -> . newbool AND fbool
+    (22) newbool -> . fbool
+    (23) fbool -> . expression GREATER expression
+    (24) fbool -> . expression LESS expression
+    (25) fbool -> . expression GREATEREQUAL expression
+    (26) fbool -> . expression LESSEQUAL expression
+    (27) fbool -> . expression EQUAL expression
+    (28) fbool -> . NOT LPAREN bool RPAREN
+    (29) fbool -> . TRUE
+    (30) fbool -> . FALSE
     (9) expression -> . expression PLUS term
     (10) expression -> . expression MINUS term
     (11) expression -> . term
@@ -588,23 +568,32 @@ state 27
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    NOT             shift and go to state 12
-    TRUE            shift and go to state 14
-    FALSE           shift and go to state 15
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    NOT             shift and go to state 13
+    TRUE            shift and go to state 15
+    FALSE           shift and go to state 16
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
     newbool                        shift and go to state 44
-    expression                     shift and go to state 11
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
+    fbool                          shift and go to state 11
+    expression                     shift and go to state 12
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
 state 28
 
-    (22) newbool -> expression GREATER . expression
+    (21) newbool -> newbool AND . fbool
+    (23) fbool -> . expression GREATER expression
+    (24) fbool -> . expression LESS expression
+    (25) fbool -> . expression GREATEREQUAL expression
+    (26) fbool -> . expression LESSEQUAL expression
+    (27) fbool -> . expression EQUAL expression
+    (28) fbool -> . NOT LPAREN bool RPAREN
+    (29) fbool -> . TRUE
+    (30) fbool -> . FALSE
     (9) expression -> . expression PLUS term
     (10) expression -> . expression MINUS term
     (11) expression -> . term
@@ -616,19 +605,23 @@ state 28
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    NOT             shift and go to state 13
+    TRUE            shift and go to state 15
+    FALSE           shift and go to state 16
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
-    expression                     shift and go to state 45
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
+    fbool                          shift and go to state 45
+    expression                     shift and go to state 12
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
 state 29
 
-    (23) newbool -> expression LESS . expression
+    (23) fbool -> expression GREATER . expression
     (9) expression -> . expression PLUS term
     (10) expression -> . expression MINUS term
     (11) expression -> . term
@@ -640,19 +633,19 @@ state 29
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
     expression                     shift and go to state 46
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
 state 30
 
-    (24) newbool -> expression GREATEREQUAL . expression
+    (24) fbool -> expression LESS . expression
     (9) expression -> . expression PLUS term
     (10) expression -> . expression MINUS term
     (11) expression -> . term
@@ -664,19 +657,19 @@ state 30
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
     expression                     shift and go to state 47
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
 state 31
 
-    (25) newbool -> expression LESSEQUAL . expression
+    (25) fbool -> expression GREATEREQUAL . expression
     (9) expression -> . expression PLUS term
     (10) expression -> . expression MINUS term
     (11) expression -> . term
@@ -688,19 +681,19 @@ state 31
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
     expression                     shift and go to state 48
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
 state 32
 
-    (26) newbool -> expression EQUAL . expression
+    (26) fbool -> expression LESSEQUAL . expression
     (9) expression -> . expression PLUS term
     (10) expression -> . expression MINUS term
     (11) expression -> . term
@@ -712,17 +705,41 @@ state 32
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
     expression                     shift and go to state 49
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
 state 33
+
+    (27) fbool -> expression EQUAL . expression
+    (9) expression -> . expression PLUS term
+    (10) expression -> . expression MINUS term
+    (11) expression -> . term
+    (12) term -> . term TIMES factor
+    (13) term -> . factor
+    (14) factor -> . INT
+    (15) factor -> . ID
+    (16) factor -> . PLUS INT
+    (17) factor -> . MINUS INT
+    (18) factor -> . LPAREN expression RPAREN
+
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
+
+    expression                     shift and go to state 50
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
+
+state 34
 
     (9) expression -> expression PLUS . term
     (12) term -> . term TIMES factor
@@ -733,16 +750,16 @@ state 33
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
-    term                           shift and go to state 50
-    factor                         shift and go to state 19
+    term                           shift and go to state 51
+    factor                         shift and go to state 20
 
-state 34
+state 35
 
     (10) expression -> expression MINUS . term
     (12) term -> . term TIMES factor
@@ -753,29 +770,30 @@ state 34
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
-    term                           shift and go to state 51
-    factor                         shift and go to state 19
+    term                           shift and go to state 52
+    factor                         shift and go to state 20
 
-state 35
+state 36
 
-    (27) newbool -> NOT LPAREN . bool RPAREN
+    (28) fbool -> NOT LPAREN . bool RPAREN
     (19) bool -> . bool OR newbool
     (20) bool -> . newbool
-    (21) bool -> . bool AND newbool
-    (22) newbool -> . expression GREATER expression
-    (23) newbool -> . expression LESS expression
-    (24) newbool -> . expression GREATEREQUAL expression
-    (25) newbool -> . expression LESSEQUAL expression
-    (26) newbool -> . expression EQUAL expression
-    (27) newbool -> . NOT LPAREN bool RPAREN
-    (28) newbool -> . TRUE
-    (29) newbool -> . FALSE
+    (21) newbool -> . newbool AND fbool
+    (22) newbool -> . fbool
+    (23) fbool -> . expression GREATER expression
+    (24) fbool -> . expression LESS expression
+    (25) fbool -> . expression GREATEREQUAL expression
+    (26) fbool -> . expression LESSEQUAL expression
+    (27) fbool -> . expression EQUAL expression
+    (28) fbool -> . NOT LPAREN bool RPAREN
+    (29) fbool -> . TRUE
+    (30) fbool -> . FALSE
     (9) expression -> . expression PLUS term
     (10) expression -> . expression MINUS term
     (11) expression -> . term
@@ -787,33 +805,34 @@ state 35
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    NOT             shift and go to state 12
-    TRUE            shift and go to state 14
-    FALSE           shift and go to state 15
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    NOT             shift and go to state 13
+    TRUE            shift and go to state 15
+    FALSE           shift and go to state 16
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
-    bool                           shift and go to state 52
+    bool                           shift and go to state 53
     newbool                        shift and go to state 10
-    expression                     shift and go to state 11
-    term                           shift and go to state 17
-    factor                         shift and go to state 19
+    fbool                          shift and go to state 11
+    expression                     shift and go to state 12
+    term                           shift and go to state 18
+    factor                         shift and go to state 20
 
-state 36
+state 37
 
     (18) factor -> LPAREN expression . RPAREN
     (9) expression -> expression . PLUS term
     (10) expression -> expression . MINUS term
 
-    RPAREN          shift and go to state 53
-    PLUS            shift and go to state 33
-    MINUS           shift and go to state 34
+    RPAREN          shift and go to state 54
+    PLUS            shift and go to state 34
+    MINUS           shift and go to state 35
 
 
-state 37
+state 38
 
     (16) factor -> PLUS INT .
 
@@ -831,13 +850,13 @@ state 37
     OD              reduce using rule 16 (factor -> PLUS INT .)
     ELSE            reduce using rule 16 (factor -> PLUS INT .)
     FI              reduce using rule 16 (factor -> PLUS INT .)
+    AND             reduce using rule 16 (factor -> PLUS INT .)
     DO              reduce using rule 16 (factor -> PLUS INT .)
     OR              reduce using rule 16 (factor -> PLUS INT .)
-    AND             reduce using rule 16 (factor -> PLUS INT .)
     THEN            reduce using rule 16 (factor -> PLUS INT .)
 
 
-state 38
+state 39
 
     (12) term -> term TIMES . factor
     (14) factor -> . INT
@@ -846,15 +865,15 @@ state 38
     (17) factor -> . MINUS INT
     (18) factor -> . LPAREN expression RPAREN
 
-    INT             shift and go to state 20
-    ID              shift and go to state 21
-    PLUS            shift and go to state 16
-    MINUS           shift and go to state 18
-    LPAREN          shift and go to state 13
+    INT             shift and go to state 21
+    ID              shift and go to state 22
+    PLUS            shift and go to state 17
+    MINUS           shift and go to state 19
+    LPAREN          shift and go to state 14
 
-    factor                         shift and go to state 54
+    factor                         shift and go to state 55
 
-state 39
+state 40
 
     (17) factor -> MINUS INT .
 
@@ -872,13 +891,13 @@ state 39
     OD              reduce using rule 17 (factor -> MINUS INT .)
     ELSE            reduce using rule 17 (factor -> MINUS INT .)
     FI              reduce using rule 17 (factor -> MINUS INT .)
+    AND             reduce using rule 17 (factor -> MINUS INT .)
     DO              reduce using rule 17 (factor -> MINUS INT .)
     OR              reduce using rule 17 (factor -> MINUS INT .)
-    AND             reduce using rule 17 (factor -> MINUS INT .)
     THEN            reduce using rule 17 (factor -> MINUS INT .)
 
 
-state 40
+state 41
 
     (6) newcommand -> IF bool THEN . command ELSE command FI
     (1) command -> . command SEMICOLON newcommand
@@ -897,11 +916,11 @@ state 40
     SEMICOLON       reduce using rule 8 (newcommand -> .)
     ID              shift and go to state 7
 
-    command                        shift and go to state 55
+    command                        shift and go to state 56
     newcommand                     shift and go to state 2
     assignment                     shift and go to state 4
 
-state 41
+state 42
 
     (7) assignment -> ID ASSIGN expression .
     (9) expression -> expression . PLUS term
@@ -912,117 +931,118 @@ state 41
     OD              reduce using rule 7 (assignment -> ID ASSIGN expression .)
     ELSE            reduce using rule 7 (assignment -> ID ASSIGN expression .)
     FI              reduce using rule 7 (assignment -> ID ASSIGN expression .)
-    PLUS            shift and go to state 33
-    MINUS           shift and go to state 34
-
-
-state 42
-
-    (5) newcommand -> WHILE bool DO command . OD
-    (1) command -> command . SEMICOLON newcommand
-
-    OD              shift and go to state 56
-    SEMICOLON       shift and go to state 8
+    PLUS            shift and go to state 34
+    MINUS           shift and go to state 35
 
 
 state 43
 
-    (19) bool -> bool OR newbool .
+    (5) newcommand -> WHILE bool DO command . OD
+    (1) command -> command . SEMICOLON newcommand
 
-    DO              reduce using rule 19 (bool -> bool OR newbool .)
-    OR              reduce using rule 19 (bool -> bool OR newbool .)
-    AND             reduce using rule 19 (bool -> bool OR newbool .)
-    THEN            reduce using rule 19 (bool -> bool OR newbool .)
-    RPAREN          reduce using rule 19 (bool -> bool OR newbool .)
+    OD              shift and go to state 57
+    SEMICOLON       shift and go to state 8
 
 
 state 44
 
-    (21) bool -> bool AND newbool .
+    (19) bool -> bool OR newbool .
+    (21) newbool -> newbool . AND fbool
 
-    DO              reduce using rule 21 (bool -> bool AND newbool .)
-    OR              reduce using rule 21 (bool -> bool AND newbool .)
-    AND             reduce using rule 21 (bool -> bool AND newbool .)
-    THEN            reduce using rule 21 (bool -> bool AND newbool .)
-    RPAREN          reduce using rule 21 (bool -> bool AND newbool .)
+    DO              reduce using rule 19 (bool -> bool OR newbool .)
+    OR              reduce using rule 19 (bool -> bool OR newbool .)
+    THEN            reduce using rule 19 (bool -> bool OR newbool .)
+    RPAREN          reduce using rule 19 (bool -> bool OR newbool .)
+    AND             shift and go to state 28
 
 
 state 45
 
-    (22) newbool -> expression GREATER expression .
-    (9) expression -> expression . PLUS term
-    (10) expression -> expression . MINUS term
+    (21) newbool -> newbool AND fbool .
 
-    DO              reduce using rule 22 (newbool -> expression GREATER expression .)
-    OR              reduce using rule 22 (newbool -> expression GREATER expression .)
-    AND             reduce using rule 22 (newbool -> expression GREATER expression .)
-    THEN            reduce using rule 22 (newbool -> expression GREATER expression .)
-    RPAREN          reduce using rule 22 (newbool -> expression GREATER expression .)
-    PLUS            shift and go to state 33
-    MINUS           shift and go to state 34
+    AND             reduce using rule 21 (newbool -> newbool AND fbool .)
+    DO              reduce using rule 21 (newbool -> newbool AND fbool .)
+    OR              reduce using rule 21 (newbool -> newbool AND fbool .)
+    THEN            reduce using rule 21 (newbool -> newbool AND fbool .)
+    RPAREN          reduce using rule 21 (newbool -> newbool AND fbool .)
 
 
 state 46
 
-    (23) newbool -> expression LESS expression .
+    (23) fbool -> expression GREATER expression .
     (9) expression -> expression . PLUS term
     (10) expression -> expression . MINUS term
 
-    DO              reduce using rule 23 (newbool -> expression LESS expression .)
-    OR              reduce using rule 23 (newbool -> expression LESS expression .)
-    AND             reduce using rule 23 (newbool -> expression LESS expression .)
-    THEN            reduce using rule 23 (newbool -> expression LESS expression .)
-    RPAREN          reduce using rule 23 (newbool -> expression LESS expression .)
-    PLUS            shift and go to state 33
-    MINUS           shift and go to state 34
+    AND             reduce using rule 23 (fbool -> expression GREATER expression .)
+    DO              reduce using rule 23 (fbool -> expression GREATER expression .)
+    OR              reduce using rule 23 (fbool -> expression GREATER expression .)
+    THEN            reduce using rule 23 (fbool -> expression GREATER expression .)
+    RPAREN          reduce using rule 23 (fbool -> expression GREATER expression .)
+    PLUS            shift and go to state 34
+    MINUS           shift and go to state 35
 
 
 state 47
 
-    (24) newbool -> expression GREATEREQUAL expression .
+    (24) fbool -> expression LESS expression .
     (9) expression -> expression . PLUS term
     (10) expression -> expression . MINUS term
 
-    DO              reduce using rule 24 (newbool -> expression GREATEREQUAL expression .)
-    OR              reduce using rule 24 (newbool -> expression GREATEREQUAL expression .)
-    AND             reduce using rule 24 (newbool -> expression GREATEREQUAL expression .)
-    THEN            reduce using rule 24 (newbool -> expression GREATEREQUAL expression .)
-    RPAREN          reduce using rule 24 (newbool -> expression GREATEREQUAL expression .)
-    PLUS            shift and go to state 33
-    MINUS           shift and go to state 34
+    AND             reduce using rule 24 (fbool -> expression LESS expression .)
+    DO              reduce using rule 24 (fbool -> expression LESS expression .)
+    OR              reduce using rule 24 (fbool -> expression LESS expression .)
+    THEN            reduce using rule 24 (fbool -> expression LESS expression .)
+    RPAREN          reduce using rule 24 (fbool -> expression LESS expression .)
+    PLUS            shift and go to state 34
+    MINUS           shift and go to state 35
 
 
 state 48
 
-    (25) newbool -> expression LESSEQUAL expression .
+    (25) fbool -> expression GREATEREQUAL expression .
     (9) expression -> expression . PLUS term
     (10) expression -> expression . MINUS term
 
-    DO              reduce using rule 25 (newbool -> expression LESSEQUAL expression .)
-    OR              reduce using rule 25 (newbool -> expression LESSEQUAL expression .)
-    AND             reduce using rule 25 (newbool -> expression LESSEQUAL expression .)
-    THEN            reduce using rule 25 (newbool -> expression LESSEQUAL expression .)
-    RPAREN          reduce using rule 25 (newbool -> expression LESSEQUAL expression .)
-    PLUS            shift and go to state 33
-    MINUS           shift and go to state 34
+    AND             reduce using rule 25 (fbool -> expression GREATEREQUAL expression .)
+    DO              reduce using rule 25 (fbool -> expression GREATEREQUAL expression .)
+    OR              reduce using rule 25 (fbool -> expression GREATEREQUAL expression .)
+    THEN            reduce using rule 25 (fbool -> expression GREATEREQUAL expression .)
+    RPAREN          reduce using rule 25 (fbool -> expression GREATEREQUAL expression .)
+    PLUS            shift and go to state 34
+    MINUS           shift and go to state 35
 
 
 state 49
 
-    (26) newbool -> expression EQUAL expression .
+    (26) fbool -> expression LESSEQUAL expression .
     (9) expression -> expression . PLUS term
     (10) expression -> expression . MINUS term
 
-    DO              reduce using rule 26 (newbool -> expression EQUAL expression .)
-    OR              reduce using rule 26 (newbool -> expression EQUAL expression .)
-    AND             reduce using rule 26 (newbool -> expression EQUAL expression .)
-    THEN            reduce using rule 26 (newbool -> expression EQUAL expression .)
-    RPAREN          reduce using rule 26 (newbool -> expression EQUAL expression .)
-    PLUS            shift and go to state 33
-    MINUS           shift and go to state 34
+    AND             reduce using rule 26 (fbool -> expression LESSEQUAL expression .)
+    DO              reduce using rule 26 (fbool -> expression LESSEQUAL expression .)
+    OR              reduce using rule 26 (fbool -> expression LESSEQUAL expression .)
+    THEN            reduce using rule 26 (fbool -> expression LESSEQUAL expression .)
+    RPAREN          reduce using rule 26 (fbool -> expression LESSEQUAL expression .)
+    PLUS            shift and go to state 34
+    MINUS           shift and go to state 35
 
 
 state 50
+
+    (27) fbool -> expression EQUAL expression .
+    (9) expression -> expression . PLUS term
+    (10) expression -> expression . MINUS term
+
+    AND             reduce using rule 27 (fbool -> expression EQUAL expression .)
+    DO              reduce using rule 27 (fbool -> expression EQUAL expression .)
+    OR              reduce using rule 27 (fbool -> expression EQUAL expression .)
+    THEN            reduce using rule 27 (fbool -> expression EQUAL expression .)
+    RPAREN          reduce using rule 27 (fbool -> expression EQUAL expression .)
+    PLUS            shift and go to state 34
+    MINUS           shift and go to state 35
+
+
+state 51
 
     (9) expression -> expression PLUS term .
     (12) term -> term . TIMES factor
@@ -1040,14 +1060,14 @@ state 50
     OD              reduce using rule 9 (expression -> expression PLUS term .)
     ELSE            reduce using rule 9 (expression -> expression PLUS term .)
     FI              reduce using rule 9 (expression -> expression PLUS term .)
+    AND             reduce using rule 9 (expression -> expression PLUS term .)
     DO              reduce using rule 9 (expression -> expression PLUS term .)
     OR              reduce using rule 9 (expression -> expression PLUS term .)
-    AND             reduce using rule 9 (expression -> expression PLUS term .)
     THEN            reduce using rule 9 (expression -> expression PLUS term .)
-    TIMES           shift and go to state 38
+    TIMES           shift and go to state 39
 
 
-state 51
+state 52
 
     (10) expression -> expression MINUS term .
     (12) term -> term . TIMES factor
@@ -1065,25 +1085,23 @@ state 51
     OD              reduce using rule 10 (expression -> expression MINUS term .)
     ELSE            reduce using rule 10 (expression -> expression MINUS term .)
     FI              reduce using rule 10 (expression -> expression MINUS term .)
+    AND             reduce using rule 10 (expression -> expression MINUS term .)
     DO              reduce using rule 10 (expression -> expression MINUS term .)
     OR              reduce using rule 10 (expression -> expression MINUS term .)
-    AND             reduce using rule 10 (expression -> expression MINUS term .)
     THEN            reduce using rule 10 (expression -> expression MINUS term .)
-    TIMES           shift and go to state 38
-
-
-state 52
-
-    (27) newbool -> NOT LPAREN bool . RPAREN
-    (19) bool -> bool . OR newbool
-    (21) bool -> bool . AND newbool
-
-    RPAREN          shift and go to state 57
-    OR              shift and go to state 26
-    AND             shift and go to state 27
+    TIMES           shift and go to state 39
 
 
 state 53
+
+    (28) fbool -> NOT LPAREN bool . RPAREN
+    (19) bool -> bool . OR newbool
+
+    RPAREN          shift and go to state 58
+    OR              shift and go to state 27
+
+
+state 54
 
     (18) factor -> LPAREN expression RPAREN .
 
@@ -1101,13 +1119,13 @@ state 53
     OD              reduce using rule 18 (factor -> LPAREN expression RPAREN .)
     ELSE            reduce using rule 18 (factor -> LPAREN expression RPAREN .)
     FI              reduce using rule 18 (factor -> LPAREN expression RPAREN .)
+    AND             reduce using rule 18 (factor -> LPAREN expression RPAREN .)
     DO              reduce using rule 18 (factor -> LPAREN expression RPAREN .)
     OR              reduce using rule 18 (factor -> LPAREN expression RPAREN .)
-    AND             reduce using rule 18 (factor -> LPAREN expression RPAREN .)
     THEN            reduce using rule 18 (factor -> LPAREN expression RPAREN .)
 
 
-state 54
+state 55
 
     (12) term -> term TIMES factor .
 
@@ -1125,22 +1143,22 @@ state 54
     OD              reduce using rule 12 (term -> term TIMES factor .)
     ELSE            reduce using rule 12 (term -> term TIMES factor .)
     FI              reduce using rule 12 (term -> term TIMES factor .)
+    AND             reduce using rule 12 (term -> term TIMES factor .)
     DO              reduce using rule 12 (term -> term TIMES factor .)
     OR              reduce using rule 12 (term -> term TIMES factor .)
-    AND             reduce using rule 12 (term -> term TIMES factor .)
     THEN            reduce using rule 12 (term -> term TIMES factor .)
 
 
-state 55
+state 56
 
     (6) newcommand -> IF bool THEN command . ELSE command FI
     (1) command -> command . SEMICOLON newcommand
 
-    ELSE            shift and go to state 58
+    ELSE            shift and go to state 59
     SEMICOLON       shift and go to state 8
 
 
-state 56
+state 57
 
     (5) newcommand -> WHILE bool DO command OD .
 
@@ -1151,18 +1169,18 @@ state 56
     FI              reduce using rule 5 (newcommand -> WHILE bool DO command OD .)
 
 
-state 57
-
-    (27) newbool -> NOT LPAREN bool RPAREN .
-
-    DO              reduce using rule 27 (newbool -> NOT LPAREN bool RPAREN .)
-    OR              reduce using rule 27 (newbool -> NOT LPAREN bool RPAREN .)
-    AND             reduce using rule 27 (newbool -> NOT LPAREN bool RPAREN .)
-    THEN            reduce using rule 27 (newbool -> NOT LPAREN bool RPAREN .)
-    RPAREN          reduce using rule 27 (newbool -> NOT LPAREN bool RPAREN .)
-
-
 state 58
+
+    (28) fbool -> NOT LPAREN bool RPAREN .
+
+    AND             reduce using rule 28 (fbool -> NOT LPAREN bool RPAREN .)
+    DO              reduce using rule 28 (fbool -> NOT LPAREN bool RPAREN .)
+    OR              reduce using rule 28 (fbool -> NOT LPAREN bool RPAREN .)
+    THEN            reduce using rule 28 (fbool -> NOT LPAREN bool RPAREN .)
+    RPAREN          reduce using rule 28 (fbool -> NOT LPAREN bool RPAREN .)
+
+
+state 59
 
     (6) newcommand -> IF bool THEN command ELSE . command FI
     (1) command -> . command SEMICOLON newcommand
@@ -1181,20 +1199,20 @@ state 58
     SEMICOLON       reduce using rule 8 (newcommand -> .)
     ID              shift and go to state 7
 
-    command                        shift and go to state 59
+    command                        shift and go to state 60
     newcommand                     shift and go to state 2
     assignment                     shift and go to state 4
 
-state 59
+state 60
 
     (6) newcommand -> IF bool THEN command ELSE command . FI
     (1) command -> command . SEMICOLON newcommand
 
-    FI              shift and go to state 60
+    FI              shift and go to state 61
     SEMICOLON       shift and go to state 8
 
 
-state 60
+state 61
 
     (6) newcommand -> IF bool THEN command ELSE command FI .
 
