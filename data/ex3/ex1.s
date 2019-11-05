@@ -17,36 +17,37 @@ ex1:
   sd a1, 16(a0)
   j .L3
 .L2:
-  li t2, 0
-  sd t2, 0(a0)
+  li a1, 0
+  sd a1, 0(a0)
   j .L5
 .L4:
-  ld t1, 0(a0)
-  ld t2, 8(a0)
-  add t1, t1, t2
-  ld t2, 16(a0)
-  add t1, t1, t2
-  sd t1, 16(a0)
-  ld t1, 0(a0)
-  li t2, 1
-  add t1, t1, t2
-  sd t1, 0(a0)
+  ld a1, 0(a0)
+  ld a2, 8(a0)
+  add a1, a1, a2
+  ld a2, 16(a0)
+  add a1, a1, a2
+  sd a1, 16(a0)
+  ld a1, 0(a0)
+  li a2, 1
+  add a1, a1, a2
+  sd a1, 0(a0)
 .L5:
-  ld t1, 0(a0)
-  li t2, 3
-  sub t1, t1, t2
-  sltz t1, t1
-  bnez t1, .L4
-  ld t1, 8(a0)
-  li t2, 1
-  add t1, t1, t2
-  sd t1, 8(a0)
+  ld a1, 0(a0)
+  li a2, 3
+  sub a1, a1, a2
+  sltz a1, a1
+  bnez a1, .L4
+  ld a1, 8(a0)
+  li a2, 1
+  add a1, a1, a2
+  sd a1, 8(a0)
+  nop
 .L3:
-  ld t1, 8(a0)
-  li t2, 3
-  sub t1, t1, t2
-  sltz t1, t1
-  bnez t1, .L2
+  ld a1, 8(a0)
+  li a2, 3
+  sub a1, a1, a2
+  sltz a1, a1
+  bnez a1, .L2
   ld  s0,24(sp)
   addi  sp,sp,32
   jr  ra

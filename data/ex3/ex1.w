@@ -8,4 +8,5 @@ while a < 3 do
     b := b + 1;
   od;
   a := a + 1;
+  skip;
 od;

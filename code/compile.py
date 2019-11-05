@@ -246,6 +246,8 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             idx = variables.index(var)
             assembly += '\n  sd '+stackmap[stack_height-1]+', '+str(idx*8)+'(a0)'
             stack_height -= 1
+        elif 'skip' == item:
+            assembly += '\n  nop'
         elif 'WHILE' in item:
             n = item.split()[1]
             assembly += '\n.L'+n+':'
