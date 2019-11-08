@@ -7,11 +7,11 @@ from functools import reduce
 import argparse
 import os
 import networkx as nx
-import matplotlib.pyplot as plt
-import pygraphviz
-from networkx.drawing.nx_agraph import write_dot
-import pydot
-from networkx.drawing.nx_pydot import write_dot
+#import matplotlib.pyplot as plt
+#import pygraphviz
+#from networkx.drawing.nx_agraph import write_dot
+#import pydot
+#from networkx.drawing.nx_pydot import write_dot
 
 
 stackmap = ['a1','a2','a3','a4','a5','a6','a7','t0','t1','t2','t3','t4','t5','t6']
@@ -193,7 +193,7 @@ def generate_code(path, c):
 
     # get a stack of commands, preprocess to make it easier to read
     cst = to_stack(result)
-    ast = to_ast(result)
+    # ast = to_ast(result)
     # print(cst)
     # print('')
     cst.reverse()
@@ -209,7 +209,7 @@ def generate_code(path, c):
         print('gcc main.c ' + name + '.s -o ' + name)
         os.system('gcc main.c ' + name + '.s -o ' + name)
 
-    return ast
+    return result
 
 
 def to_assembly(cst, variables, name):
@@ -370,6 +370,7 @@ if __name__ == "__main__":
     tree = generate_code(args.path, args.c)
     print(tree)
 # ----------------------------------------------------------------------
+    '''
     count = 0
     preprocess(tree)
     G = nx.DiGraph()
@@ -385,15 +386,16 @@ if __name__ == "__main__":
     type_dict = { k:v for k,v in zip(node_list,attributes)}
     nx.set_node_attributes(G, type_dict, 'type')
     G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
+    '''
 
-    pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
-    plt.figure(3,figsize=(5,5))
-    # 'E0E0E0', 'FFCC99', '#82A9D0', '#F9C56A', '#FF9999', '#A4CACA', '#7DCACA' '#F6D66F'
-    nx.draw(G, pos, with_labels=False, arrows=False, font_size=5, node_size=1000, node_color='#7DCACA')
-    node_labels = nx.get_node_attributes(G,'type')
-    nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=15)
-    plt.savefig('tree.png')
-    # write_dot(G, "graph.dot")
+#   pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
+#    plt.figure(3,figsize=(5,5))
+#    # 'E0E0E0', 'FFCC99', '#82A9D0', '#F9C56A', '#FF9999', '#A4CACA', '#7DCACA' '#F6D66F'
+#    nx.draw(G, pos, with_labels=False, arrows=False, font_size=5, node_size=1000, node_color='#7DCACA')
+#    node_labels = nx.get_node_attributes(G,'type')
+#    nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=15)
+#    plt.savefig('tree.png')
+#    # write_dot(G, "graph.dot")
     # ! dot -Tpdf graph.dot -o graph.pdf
     # run the following to print out the tree in a pdf: dot -Tpdf graph.dot -o graph.pdf
 # ----------------------------------------------------------------------

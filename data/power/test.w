@@ -1,6 +1,6 @@
-i := 2;
-total = 1;
-while i < iterations do
-    total := total * 2;
-    i := i + 1;
+total := 1;
+c := 0;
+while c < iterations do
+    total := total *  i;
+    c:= c + 1;
 od;

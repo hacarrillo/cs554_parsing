@@ -1,7 +1,7 @@
   .file "test.c"
   .option nopic
   .text
-  .comm vars,16,8
+  .comm vars,32,8
   .align  1
   .globl test
   .type test, @function
@@ -9,14 +9,14 @@ test:
   addi  sp,sp,-32
   sd  s0,24(sp)
   addi  s0,sp,32
-  li a1, 2
+  li a1, 1
   sd a1, 0(a0)
-  li a1, 100
+  li a1, 0
   sd a1, 8(a0)
   j .L3
 .L2:
   ld a1, 0(a0)
-  ld a2, 0(a0)
+  ld a2, 24(a0)
   mul a1, a1, a2
   sd a1, 0(a0)
   ld a1, 8(a0)
@@ -24,8 +24,8 @@ test:
   add a1, a1, a2
   sd a1, 8(a0)
 .L3:
-  ld a1, 0(a0)
-  ld a2, 8(a0)
+  ld a1, 8(a0)
+  ld a2, 16(a0)
   sub a1, a1, a2
   sltz a1, a1
   bnez a1, .L2
