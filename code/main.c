@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
-extern void test(long int * vars);
+extern void quick(long int * vars);
 long int vars [6];
 int main (int argc, char ** argv)
 {
     int i;
     if (argc != 7)
     {
-        printf ("Usage: test dividend divisor neg quotient result sign\n");
+        printf ("Usage: quick dividend divisor neg quotient result sign\n");
         exit(1);
     }
 
@@ -24,7 +24,7 @@ int main (int argc, char ** argv)
     printf("quotient=%ld\n", vars[0]);
     printf("result=%ld\n", vars[5]);
     printf("sign=%ld\n", vars[4]);
-    test(vars);
+    quick(vars);
     printf("Final State:\n");
     printf("dividend=%ld\n", vars[2]);
     printf("divisor=%ld\n", vars[3]);

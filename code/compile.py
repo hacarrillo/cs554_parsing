@@ -193,7 +193,6 @@ def generate_code(path, c):
 
     # get a stack of commands, preprocess to make it easier to read
     cst = to_stack(result)
-    # ast = to_ast(result)
     # print(cst)
     # print('')
     cst.reverse()
@@ -209,7 +208,7 @@ def generate_code(path, c):
         print('gcc main.c ' + name + '.s -o ' + name)
         os.system('gcc main.c ' + name + '.s -o ' + name)
 
-    return result
+    return to_ast(result)
 
 
 def to_assembly(cst, variables, name):
@@ -368,9 +367,7 @@ if __name__ == "__main__":
     parser.add_argument("path")
     args = parser.parse_args()
     tree = generate_code(args.path, args.c)
-    print(tree)
 # ----------------------------------------------------------------------
-    '''
     count = 0
     preprocess(tree)
     G = nx.DiGraph()
@@ -386,7 +383,6 @@ if __name__ == "__main__":
     type_dict = { k:v for k,v in zip(node_list,attributes)}
     nx.set_node_attributes(G, type_dict, 'type')
     G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
-    '''
 
 #   pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
 #    plt.figure(3,figsize=(5,5))
