@@ -90,7 +90,7 @@ def to_ast(pt):
         res = ['command', [to_ast(pt[0][1]), to_ast(pt[2][1])]]
         return res
     elif ['IF', 'bool', 'THEN', 'command', 'ELSE', 'command', 'FI'] == derivation:
-        res = ["IF-THEN-ELSE", [to_ast(pt[3][1]), to_ast(pt[5][1]), to_ast(pt[6][1])]]
+        res = ["IF-THEN-ELSE", [to_ast(pt[1][1]), to_ast(pt[3][1]), to_ast(pt[5][1])]]
         return res
     elif ['command'] == derivation or ['newcommand'] == derivation:
         res = ['command', [to_ast(pt[0][1])]]
@@ -104,7 +104,7 @@ def to_ast(pt):
         res = ["WHILE", [to_ast(pt[1][1]), to_ast(pt[3][1])]]
         return res
     elif ('ID' in derivation or 'INT' in derivation or 'TRUE' in derivation or 'FALSE' in derivation) and ld == 1:
-        return pt[0][1]
+        return [pt[0][1]]
     elif ['SKIP'] == derivation:
         return pt[0][1]
     elif ld == 1:
@@ -193,7 +193,7 @@ def generate_code(path, c):
 
     # get a stack of commands, preprocess to make it easier to read
     cst = to_stack(result)
-    ast = [to_ast(result)]
+    ast = to_ast(result)
     # print(cst)
     # print('')
     cst.reverse()
