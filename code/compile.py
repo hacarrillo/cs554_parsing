@@ -6,12 +6,12 @@ import os.path
 from functools import reduce
 import argparse
 import os
-#import networkx as nx
-#import matplotlib.pyplot as plt
-#import pygraphviz
-#from networkx.drawing.nx_agraph import write_dot
-#import pydot
-#from networkx.drawing.nx_pydot import write_dot
+import networkx as nx
+import matplotlib.pyplot as plt
+import pygraphviz
+from networkx.drawing.nx_agraph import write_dot
+import pydot
+from networkx.drawing.nx_pydot import write_dot
 
 
 stackmap = ['a1','a2','a3','a4','a5','a6','a7','t0','t1','t2','t3','t4','t5','t6']
@@ -80,6 +80,40 @@ def to_stack(ast):
         res.append(ast[0][1])
         return res
 
+def to_ast(pt):
+    if pt == None:
+        return []
+
+    ld = len(pt)
+    derivation = [a[0] for a in pt]
+    if ['command','SEMICOLON','newcommand'] == derivation:
+        res = ['command', [to_ast(pt[0][1]), to_ast(pt[2][1])]]
+        return res
+    elif ['IF', 'bool', 'THEN', 'command', 'ELSE', 'command', 'FI'] == derivation:
+        res = ["IF-THEN-ELSE", [to_ast(pt[3][1]), to_ast(pt[5][1]), to_ast(pt[6][1])]]
+        return res
+    elif ['command'] == derivation or ['newcommand'] == derivation:
+        res = ['command', [to_ast(pt[0][1])]]
+        return res
+    elif ['ID','ASSIGN','expression'] == derivation:
+        res = [":=", [[pt[0][1]], to_ast(pt[2][1])]]
+        return res
+    elif ['LPAREN','expression','RPAREN'] == derivation:
+        return to_ast(pt[1][1])
+    elif ['WHILE','bool','DO','command','OD'] == derivation:
+        res = ["WHILE", [to_ast(pt[1][1]), to_ast(pt[3][1])]]
+        return res
+    elif ('ID' in derivation or 'INT' in derivation or 'TRUE' in derivation or 'FALSE' in derivation) and ld == 1:
+        return pt[0][1]
+    elif ['SKIP'] == derivation:
+        return pt[0][1]
+    elif ld == 1:
+        return to_ast(pt[0][1])
+    elif ld == 3:
+        res = [pt[1][1], [to_ast(pt[0][1]), to_ast(pt[2][1])]]
+        return res
+    elif ld == 4:
+        res = [pt[0][1], [to_ast(pt[0][1])]]
 
 # ----------------------------------------------------------------------
 def preprocess(L):
@@ -145,6 +179,7 @@ def generate_code(path, c):
 
     # get a stack of commands, preprocess to make it easier to read
     cst = to_stack(result)
+    ast = [to_ast(result)]
     # print(cst)
     # print('')
     cst.reverse()
@@ -160,7 +195,7 @@ def generate_code(path, c):
         print('gcc main.c ' + name + '.s -o ' + name)
         os.system('gcc main.c ' + name + '.s -o ' + name)
 
-    return result
+    return ast
 
 
 def to_assembly(cst, variables, name):
@@ -321,30 +356,31 @@ if __name__ == "__main__":
     tree = generate_code(args.path, args.c)
     print(tree)
 # ----------------------------------------------------------------------
- #   count = 0
- #   preprocess(tree)
- #   G = nx.DiGraph()
- #   build(G, tree)
- #   # write_dot(G, "graph.dot")
+    count = 0
+    preprocess(tree)
+    G = nx.DiGraph()
+    build(G, tree)
+    # write_dot(G, "graph.dot")
 
- #   attributes = []
- #   for node in G.nodes():
- #       attr = node.split(' ')
- #       attributes.append(attr[0])
+    attributes = []
+    for node in G.nodes():
+        attr = node.split(' ')
+        attributes.append(attr[0])
 
- #   node_list = list(G.nodes())
- #   type_dict = { k:v for k,v in zip(node_list,attributes)}
- #   nx.set_node_attributes(G, type_dict, 'type')
- #   G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
+    node_list = list(G.nodes())
+    type_dict = { k:v for k,v in zip(node_list,attributes)}
+    nx.set_node_attributes(G, type_dict, 'type')
+    G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
 
- #   pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
- #   plt.figure(3,figsize=(45,45))
- #   # 'E0E0E0', 'FFCC99', '#82A9D0', '#F9C56A', '#FF9999', '#A4CACA', '#7DCACA' '#F6D66F'
- #   nx.draw(G, pos, with_labels=False, arrows=False, font_size=20, node_size=4500, node_color='#7DCACA')
- #   node_labels = nx.get_node_attributes(G,'type')
- #   nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=20)
- #   plt.savefig('tree.png')
- #   # write_dot(G, "graph.dot")
- #   # ! dot -Tpdf graph.dot -o graph.pdf
+    pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
+    plt.figure(3,figsize=(45,45))
+    # 'E0E0E0', 'FFCC99', '#82A9D0', '#F9C56A', '#FF9999', '#A4CACA', '#7DCACA' '#F6D66F'
+    nx.draw(G, pos, with_labels=False, arrows=False, font_size=20, node_size=4500, node_color='#7DCACA')
+    node_labels = nx.get_node_attributes(G,'type')
+    nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=20)
+    plt.savefig('tree.png')
+    # write_dot(G, "graph.dot")
+    # ! dot -Tpdf graph.dot -o graph.pdf
     # run the following to print out the tree in a pdf: dot -Tpdf graph.dot -o graph.pdf
 # ----------------------------------------------------------------------
+
