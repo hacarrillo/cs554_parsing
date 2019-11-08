@@ -116,35 +116,49 @@ def to_ast(pt):
         res = [pt[0][1], [to_ast(pt[0][1])]]
 
 # ----------------------------------------------------------------------
+count = 0
 def preprocess(L):
     global count
-    for T in L:
-        if isinstance(T[0],str):
-            count += 1
-            T[0] = T[0] + ' ' + str(count)
+#     print(L)
+    if isinstance(L[0],str) | isinstance(L[0], int):
+        count += 1
+        L[0] = str(L[0]) + ' ' + str(count)
+#         print(L[0])
 
-        if isinstance(T[1], list):
-            child = preprocess(T[1])
-
-        if isinstance(T[1], str) | isinstance(T[1], int):
-            T[1] = str(T[1]) + ' ' + str(count)
+    if len(L) > 1:
+        if isinstance(L[1], list):
+            for e,i in enumerate(L[1]):
+                if isinstance(i,list):
+                    if len(i) > 0:
+                        child = preprocess(i)
+                elif isinstance(i, str) | isinstance(i, int):
+                    L[1][e] = str(i) + ' ' + str(count)
 
 def build(g, L):
     parents = []
-    for T in L:
-        if isinstance(T[0],str):
-            parent = T[0]
-            parents.append(T[0])
-            g.add_node(parent)
 
-        if isinstance(T[1], list):
-            child = build(g, T[1])
-            for p in child:
-                g.add_edge(parent, p)
+    if len(L) == 0:
+        return
 
-        if isinstance(T[1], str) | isinstance(T[1], int):
-            leaf = T[1]
-            g.add_edge(parent, leaf)
+    if isinstance(L[0],str):
+        parent = L[0]
+        parents.append(L[0])
+        g.add_node(parent)
+
+    if len(L) > 1:
+        if isinstance(L[1], list):
+            for c in L[1]:
+#                 print(c)
+                if c!= None and len(c) != 0:
+                    child = build(g, c)
+                    if child != None:
+                        g.add_edge(parent, child[0])
+
+        if isinstance(L[1], str) | isinstance(L[1], int):
+            leaf = L[1]
+            if leaf != ' ':
+                g.add_edge(parent, leaf)
+
     return parents
 
 # ----------------------------------------------------------------------
@@ -373,14 +387,13 @@ if __name__ == "__main__":
     G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
 
     pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
-    plt.figure(3,figsize=(45,45))
+    plt.figure(3,figsize=(5,5))
     # 'E0E0E0', 'FFCC99', '#82A9D0', '#F9C56A', '#FF9999', '#A4CACA', '#7DCACA' '#F6D66F'
-    nx.draw(G, pos, with_labels=False, arrows=False, font_size=20, node_size=4500, node_color='#7DCACA')
+    nx.draw(G, pos, with_labels=False, arrows=False, font_size=5, node_size=1000, node_color='#7DCACA')
     node_labels = nx.get_node_attributes(G,'type')
-    nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=20)
+    nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=15)
     plt.savefig('tree.png')
     # write_dot(G, "graph.dot")
     # ! dot -Tpdf graph.dot -o graph.pdf
     # run the following to print out the tree in a pdf: dot -Tpdf graph.dot -o graph.pdf
 # ----------------------------------------------------------------------
-
