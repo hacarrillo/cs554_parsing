@@ -6,13 +6,13 @@ import os.path
 from functools import reduce
 import argparse
 import os
-import networkx as nx
+from trees import *
+#import networkx as nx
 #import matplotlib.pyplot as plt
 #import pygraphviz
 #from networkx.drawing.nx_agraph import write_dot
 #import pydot
 #from networkx.drawing.nx_pydot import write_dot
-
 
 stackmap = ['a1','a2','a3','a4','a5','a6','a7','t0','t1','t2','t3','t4','t5','t6']
 maxl = 2
@@ -80,24 +80,25 @@ def to_stack(ast):
         res.append(ast[0][1])
         return res
 
-def to_ast(pt):
-    if pt == None:
-        return []
-
+def to_ast(pt, tree):
     ld = len(pt)
     derivation = [a[0] for a in pt]
     if ['command','SEMICOLON','newcommand'] == derivation:
-        res = ['command', [to_ast(pt[0][1]), to_ast(pt[2][1])]]
-        return res
+        to_ast(pt[0][1], tree)
+        to_ast(pt[2][1], tree)
     elif ['IF', 'bool', 'THEN', 'command', 'ELSE', 'command', 'FI'] == derivation:
-        res = ["IF-THEN-ELSE", [to_ast(pt[1][1]), to_ast(pt[3][1]), to_ast(pt[5][1])]]
-        return res
+        node = ASTNode('IF-THEN-ELSE', parent = tree)
+        node.add_child(to_ast(pt[1][1]))
+        node.add_child(to_ast(pt[3][1]))
+        node.add_child(to_ast(pt[5][1]))
+        return node
     elif ['command'] == derivation or ['newcommand'] == derivation:
-        res = ['command', [to_ast(pt[0][1])]]
-        return res
+        to_ast(pt[0][1])
     elif ['ID','ASSIGN','expression'] == derivation:
-        res = [":=", [[pt[0][1]], to_ast(pt[2][1])]]
-        return res
+        node = ASTNode('ASSIGN', parent = tree)
+        node.add_child(ASTNode('ASSIGN', parent = node))
+        node.add_child(to_ast(pt[2][1]))
+        return node
     elif ['LPAREN','expression','RPAREN'] == derivation:
         return to_ast(pt[1][1])
     elif ['WHILE','bool','DO','command','OD'] == derivation:
@@ -208,7 +209,7 @@ def generate_code(path, c):
         print('gcc main.c ' + name + '.s -o ' + name)
         os.system('gcc main.c ' + name + '.s -o ' + name)
 
-    return to_ast(result)
+    return result
 
 
 def to_assembly(cst, variables, name):
@@ -368,6 +369,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     tree = generate_code(args.path, args.c)
 # ----------------------------------------------------------------------
+    '''
     count = 0
     preprocess(tree)
     G = nx.DiGraph()
@@ -383,6 +385,7 @@ if __name__ == "__main__":
     type_dict = { k:v for k,v in zip(node_list,attributes)}
     nx.set_node_attributes(G, type_dict, 'type')
     G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
+    '''
 
 #   pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
 #    plt.figure(3,figsize=(5,5))
