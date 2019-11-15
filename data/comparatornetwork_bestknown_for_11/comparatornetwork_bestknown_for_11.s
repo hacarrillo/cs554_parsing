@@ -12,7 +12,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 0(a0)
   ld a2, 8(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L2
   nop
   j .L3
@@ -27,7 +27,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 24(a0)
   ld a2, 32(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L4
   nop
   j .L5
@@ -42,7 +42,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 40(a0)
   ld a2, 48(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L6
   nop
   j .L7
@@ -57,7 +57,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 56(a0)
   ld a2, 64(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L8
   nop
   j .L9
@@ -72,7 +72,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 72(a0)
   ld a2, 80(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L10
   nop
   j .L11
@@ -87,7 +87,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 8(a0)
   ld a2, 32(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L12
   nop
   j .L13
@@ -102,7 +102,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 48(a0)
   ld a2, 64(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L14
   nop
   j .L15
@@ -117,7 +117,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 0(a0)
   ld a2, 24(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L16
   nop
   j .L17
@@ -132,7 +132,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 40(a0)
   ld a2, 56(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L18
   nop
   j .L19
@@ -147,7 +147,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 72(a0)
   ld a2, 88(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L20
   nop
   j .L21
@@ -162,7 +162,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 8(a0)
   ld a2, 24(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L22
   nop
   j .L23
@@ -177,7 +177,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 48(a0)
   ld a2, 56(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L24
   nop
   j .L25
@@ -192,7 +192,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 80(a0)
   ld a2, 88(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L26
   nop
   j .L27
@@ -207,7 +207,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 8(a0)
   ld a2, 48(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L28
   nop
   j .L29
@@ -222,7 +222,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 56(a0)
   ld a2, 88(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L30
   nop
   j .L31
@@ -237,7 +237,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 48(a0)
   ld a2, 80(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L32
   nop
   j .L33
@@ -252,7 +252,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 24(a0)
   ld a2, 56(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L34
   nop
   j .L35
@@ -267,7 +267,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 8(a0)
   ld a2, 48(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L36
   nop
   j .L37
@@ -282,7 +282,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 56(a0)
   ld a2, 88(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L38
   nop
   j .L39
@@ -297,7 +297,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 0(a0)
   ld a2, 40(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L40
   nop
   j .L41
@@ -312,7 +312,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 32(a0)
   ld a2, 64(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L42
   nop
   j .L43
@@ -327,7 +327,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 40(a0)
   ld a2, 72(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L44
   nop
   j .L45
@@ -342,7 +342,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 0(a0)
   ld a2, 40(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L46
   nop
   j .L47
@@ -357,7 +357,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 8(a0)
   ld a2, 40(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L48
   nop
   j .L49
@@ -372,7 +372,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 64(a0)
   ld a2, 88(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L50
   nop
   j .L51
@@ -387,7 +387,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 32(a0)
   ld a2, 72(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L52
   nop
   j .L53
@@ -402,7 +402,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 24(a0)
   ld a2, 32(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L54
   nop
   j .L55
@@ -417,7 +417,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 72(a0)
   ld a2, 80(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L56
   nop
   j .L57
@@ -432,7 +432,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 24(a0)
   ld a2, 40(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L58
   nop
   j .L59
@@ -447,7 +447,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 64(a0)
   ld a2, 80(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L60
   nop
   j .L61
@@ -462,7 +462,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 32(a0)
   ld a2, 48(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L62
   nop
   j .L63
@@ -477,7 +477,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 56(a0)
   ld a2, 72(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L64
   nop
   j .L65
@@ -492,7 +492,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 32(a0)
   ld a2, 40(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L66
   nop
   j .L67
@@ -507,7 +507,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 48(a0)
   ld a2, 56(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L68
   nop
   j .L69
@@ -522,7 +522,7 @@ comparatornetwork_bestknown_for_11:
   ld a1, 64(a0)
   ld a2, 72(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L70
   nop
   j .L71

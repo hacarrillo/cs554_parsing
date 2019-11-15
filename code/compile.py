@@ -6,7 +6,7 @@ import os.path
 from functools import reduce
 import argparse
 import os
-from trees import *
+#from trees import *
 #import networkx as nx
 #import matplotlib.pyplot as plt
 #import pygraphviz
@@ -272,11 +272,11 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             if item == '<':
                 assembly += '\n  sub '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                assembly += '\n  sltz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
+                assembly += '\n  sgtz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
             elif item == '>':
                 assembly += '\n  sub '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                assembly += '\n  sgtz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
+                assembly += '\n  sltz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
             elif item == '<=':
                 assembly += '\n  addi ' + stackmap[stack_height-1] + ','+stackmap[stack_height-1]+',1'
                 assembly += '\n  slt '

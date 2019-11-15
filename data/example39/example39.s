@@ -1,7 +1,7 @@
   .file "example39.c"
   .option nopic
   .text
-  .comm vars,24,8
+  .comm vars,32,8
   .align  1
   .globl example39
   .type example39, @function
@@ -18,14 +18,18 @@ example39:
   ld a1, 0(a0)
   ld a2, 8(a0)
   sub a1, a1, a2
-  sltz a1, a1
+  sd a1, 16(a0)
+  ld a1, 0(a0)
+  ld a2, 8(a0)
+  sub a1, a1, a2
+  sgtz a1, a1
   beqz a1, .L2
   li a1, 1
-  sd a1, 16(a0)
+  sd a1, 24(a0)
   j .L3
 .L2:
   li a1, 2
-  sd a1, 16(a0)
+  sd a1, 24(a0)
 .L3:
   ld  s0,24(sp)
   addi  sp,sp,32

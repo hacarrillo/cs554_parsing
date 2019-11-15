@@ -91,12 +91,13 @@ if __name__ == "__main__":
     {- MORE COMMENT -}
 
     -- line comment
-    whiledo := 10;
+    while := 10 do
     y := x;
     z := -1;
     while y > 1 do
     z := z * y;
     y := y - 1
+    od;
     od;
     y := 0;
     output := z
