@@ -8,7 +8,8 @@ quotient := 0;
 neg := dividend * divisor;
 
 if neg < 0 then
-    sign := -1
+    sign := -1;
+    sign := -1;
 else
     sign := 1;
 fi;

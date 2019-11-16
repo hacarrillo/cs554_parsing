@@ -18,8 +18,10 @@ test:
   ld a1, 8(a0)
   li a2, 0
   sub a1, a1, a2
-  sltz a1, a1
+  sgtz a1, a1
   beqz a1, .L2
+  li a1, -1
+  sd a1, 32(a0)
   li a1, -1
   sd a1, 32(a0)
   j .L3
