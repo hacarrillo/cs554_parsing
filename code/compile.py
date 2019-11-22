@@ -168,7 +168,7 @@ def to_cfg(dast, root):
 
   return blocks
 
-def make_equations(cfg):
+def make_equations(cfg, variables):
   ineq = []
   outeq = []
   
@@ -182,17 +182,21 @@ def make_equations(cfg):
         found.append(child)
         stack.insert(0,child)
 
+
   t = len(found)
   rd_init = RDSet(-1)
   rds_in = []
   rds_out = []
   rds_all = RDSet(-1)
+
+  for v in variables:
+    rd_init.append(RD(v))
+
   for node in found:
     if node.name != 'root':
       eq = node.name.split()
       x = eq[0]
       l = node.label
-      rd_init.append(RD(x))
       rds_in.append(RDSet(l))
       rds_out.append(RDSet(l))
       if ':=' in eq:
@@ -382,7 +386,7 @@ def visualize(path):
   to_cfg(astroot, [cfgroot])
 
   # new stuff we don't need to visualize I think, but idk where to put it right now
-  make_equations(cfgroot)
+  make_equations(cfgroot, variables)
 
   '''
   count = 0
