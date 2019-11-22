@@ -7,6 +7,7 @@ from functools import reduce
 import argparse
 import os
 from trees import *
+from rd import *
 #import networkx as nx
 #import matplotlib.pyplot as plt
 #import pygraphviz
@@ -139,36 +140,72 @@ def to_ast(pt, tree):
         to_ast(pt[2][1], node)
 
 def to_cfg(dast, root):
-  block = root
-  for child in dast.children:
+  blocks = root
+  for i, child in enumerate(dast.children):
     if child.label != dast.label:
-      tmp = CFGNode(to_code(child))
-      block.add_child(tmp)
-      block = tmp
+      tmp = CFGNode(to_code(child), child.label)
+      for b in blocks:
+        b.add_child(tmp)
+      blocks = [tmp]
 
     if child.name == 'if':
-      tmp_bool = CFGNode(to_code(child.children[0]))
-      block.add_child(tmp_bool)
-      tmp_then = to_cfg(child.children[1], tmp_bool)
-      tmp_else = to_cfg(child.children[2], tmp_bool)
-      block = CFGNode('END IF')
-      tmp_then.add_child(block)
-      tmp_else.add_child(block)
+      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label)
+      for b in blocks:
+        b.add_child(tmp_bool)
+      tmp_then = to_cfg(child.children[1], [tmp_bool])
+      tmp_else = to_cfg(child.children[2], [tmp_bool])
+      blocks = [tmp_then, tmp_else]
 
     if child.name == 'while':
-      tmp_bool = CFGNode(to_code(child.children[0]))
-      block.add_child(tmp_bool)
-      tmp_do = to_cfg(child.children[1], tmp_bool)
-      block = CFGNode('END WHILE')
-      tmp_bool.add_child(block)
+      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label)
+      for b in blocks:
+        b.add_child(tmp_bool)
+      tmp_do = to_cfg(child.children[1], [tmp_bool])
       tmp_do.add_child(tmp_bool)
+      blocks = [tmp_bool]
 
-  tmp = CFGNode('END')
-  block.add_child(tmp)
-  block = tmp
+  blocks = tmp
 
-  return block
+  return blocks
 
+def make_equations(cfg):
+  ineq = []
+  outeq = []
+  
+  current = cfg
+  found = [cfg]
+  stack = [cfg]
+  while len(stack) != 0:
+    current = stack.pop()
+    for child in current.children:
+      if child not in found:
+        found.append(child)
+        stack.insert(0,child)
+
+  t = len(found)
+  rd_init = RDSet(-1)
+  rds_in = []
+  rds_out = []
+  rds_all = RDSet(-1)
+  for node in found:
+    if node.name != 'root':
+      eq = node.name.split()
+      x = eq[0]
+      l = node.label
+      rd_init.append(RD(x))
+      rds_in.append(RDSet(l))
+      rds_out.append(RDSet(l))
+      if ':=' in eq:
+        x = eq[0]
+        l = node.label
+        rds_all.append(RD(x, l))
+
+  print(rds_in)
+  print(rds_out)
+  print(rd_init)
+  print(rds_all)
+  
+  
 def to_code(ast, decorate = False, tab = 0):
   s = ''
 
@@ -338,14 +375,14 @@ def visualize(path):
 
   # this just labels the code
   s = to_code(astroot, True, tab = 0)
-  print(s)
 
   # this makes the the control flow graph
   # pretty much the same data structure as astnode
-  # don't count on parent to be correct
   cfgroot = CFGNode('root')
-  to_cfg(astroot, cfgroot)
+  to_cfg(astroot, [cfgroot])
 
+  # new stuff we don't need to visualize I think, but idk where to put it right now
+  make_equations(cfgroot)
 
   '''
   count = 0
