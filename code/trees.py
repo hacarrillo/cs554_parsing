@@ -1,3 +1,5 @@
+from rd import *
+
 class ASTNode:
   count = 0
   def __init__(self, name, label = None, leader = False, parent = None):
@@ -50,6 +52,17 @@ class CFGNode:
     else:
       self.label = label
     CFGNode.count = CFGNode.count + 1
+    
+    eq = self.name.split()
+    if ':=' in eq:
+      self.rdgen = RD(eq[0], label)
+    else:
+      self.rdgen = None
+    self.rd_set_in = RDSet()
+    self.rd_set_out = RDSet()
+
+    if self.rdgen != None:
+      self.rd_set_out.append(self.rdgen)
    
   def add_child(self, child): 
     if isinstance(child, CFGNode):

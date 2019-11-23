@@ -1,50 +1,61 @@
 class RD:
-  def __init__(self, x, l = None):
+  def __init__(self, x, label = None):
     self.x = x
-    if l != None: 
-      self.l = int(l)
+    if label != None: 
+      self.label = int(label)
     else:
-      self.l = l
+      self.label = label
 
   def __eq__(self, other):
     if isinstance(other, RD):
-      return self.x == other.x and self.l == other.l
+      return self.x == other.x and self.label == other.label
     return False
 
   def __repr__(self):
     return self.__str__()
 
   def __str__(self):
-    return "(" + str(self.x) + " " + str(self.l) + ")"
+    return "(" + str(self.x) + " " + str(self.label) + ")"
 
 class RDSet:
-  def __init__(self, label):
+  def __init__(self):
     self.set = []
-    if label != None: 
-      self.label = int(label)
-    else:
-      self.label = label
   
   def append(self, rd):
     found = None
     for i, s in enumerate(self.set):
-      if s.x == rd.x and (rd.l == None or s.l == None or s.l == rd.l):
+      if s.x == rd.x and s.label == rd.label:
         found = s
         break
 
     if found == None:
       self.set.append(rd)
-      return True
-    elif found.l == None: 
-      found.l = rd.l
-      return True
-       
-    return False
 
-  def __add__(self, rdset):
+    return
+
+  def copy(self):
+    rds = RDSet() 
+    for rd in self.set:
+      rds.append(RD(rd.x, rd.label))
+    return rds
+
+  def union(self, rdset):
     for rd in rdset.set:
       self.append(rd)
-    return self
+    return
+
+  def getx(self, x):
+    rds = []
+    for rd in self.set:
+      if rd.x == x:
+        rds.append(rd)
+    return rds
+
+  def getl(self, label):
+    for rd in self.set:
+      if rd.label == label:
+        return rd
+    return None
 
   def remove(self, var):
     rd_remove = []
@@ -56,7 +67,7 @@ class RDSet:
       self.set.remove(rd)  
 
   def __str__(self):
-    s = 'RD' + str(self.label) + '['
+    s = 'RD' + '['
     for rd in self.set:
       s += rd.__str__() + ', '
     s += ']'
@@ -64,6 +75,15 @@ class RDSet:
 
   def __repr__(self):
     return self.__str__()
+
+  def __eq__(self, other):
+    for rd in other.set:
+      if rd not in self.set:
+        return False
+    for rd in self.set:
+      if rd not in other.set:
+        return False
+    return True
   
 if __name__ == "__main__":
   import inspect

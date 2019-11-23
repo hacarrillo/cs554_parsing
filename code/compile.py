@@ -171,7 +171,8 @@ def to_cfg(dast, root):
 def make_equations(cfg, variables):
   ineq = []
   outeq = []
-  
+
+  # ------------------------------------  
   current = cfg
   found = [cfg]
   stack = [cfg]
@@ -181,13 +182,12 @@ def make_equations(cfg, variables):
       if child not in found:
         found.append(child)
         stack.insert(0,child)
-
+  # ------------------------------------  
 
   t = len(found)
-  rd_init = RDSet(-1)
-  rds_in = []
-  rds_out = []
-  rds_all = RDSet(-1)
+  rd_init = RDSet()
+  rds_all = RDSet()
+  all_nodes = []
 
   for v in variables:
     rd_init.append(RD(v))
@@ -197,19 +197,38 @@ def make_equations(cfg, variables):
       eq = node.name.split()
       x = eq[0]
       l = node.label
-      rds_in.append(RDSet(l))
-      rds_out.append(RDSet(l))
+      all_nodes.append(node)
       if ':=' in eq:
         x = eq[0]
         l = node.label
         rds_all.append(RD(x, l))
 
-  print(rds_in)
-  print(rds_out)
-  print(rd_init)
-  print(rds_all)
-  
-  
+  # initialize in
+  all_nodes[0].rd_set_in.set = rd_init.set
+
+  changed = True
+  while changed:
+    changed = False
+    for node in all_nodes:
+      rds = node.rd_set_in
+      for p in node.parents:
+        rds_parent = p.rd_set_out
+        if p.label != None:
+          rds.union(rds_parent)
+
+    for node in all_nodes:
+      rds = node.rd_set_out 
+      tmp = rds.copy()
+      rdgen = node.rdgen
+      if rdgen != None:
+        rds.union(node.rd_set_in)
+        rds.remove(rdgen.x)
+        rds.append(rdgen)
+        changed = changed or tmp != rds
+      else:
+        rds.union(node.rd_set_in)
+        changed = changed or tmp != rds
+
 def to_code(ast, decorate = False, tab = 0):
   s = ''
 
