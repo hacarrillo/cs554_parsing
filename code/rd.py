@@ -1,10 +1,11 @@
 class RD:
-  def __init__(self, x, label = None):
+  def __init__(self, x, label = None, node = None):
     self.x = x
     if label != None: 
       self.label = int(label)
     else:
       self.label = label
+    self.node = node
 
   def __eq__(self, other):
     if isinstance(other, RD):
@@ -36,7 +37,7 @@ class RDSet:
   def copy(self):
     rds = RDSet() 
     for rd in self.set:
-      rds.append(RD(rd.x, rd.label))
+      rds.append(RD(rd.x, rd.label, rd.node))
     return rds
 
   def union(self, rdset):

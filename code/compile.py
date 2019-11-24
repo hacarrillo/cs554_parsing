@@ -8,6 +8,7 @@ import argparse
 import os
 from trees import *
 from rd import *
+from utils import *
 #import networkx as nx
 #import matplotlib.pyplot as plt
 #import pygraphviz
@@ -184,7 +185,6 @@ def make_equations(cfg, variables):
         stack.insert(0,child)
   # ------------------------------------  
 
-  t = len(found)
   rd_init = RDSet()
   rds_all = RDSet()
   all_nodes = []
@@ -201,7 +201,7 @@ def make_equations(cfg, variables):
       if ':=' in eq:
         x = eq[0]
         l = node.label
-        rds_all.append(RD(x, l))
+        rds_all.append(RD(x, l, node))
 
   # initialize in
   all_nodes[0].rd_set_in.set = rd_init.set
@@ -229,6 +229,43 @@ def make_equations(cfg, variables):
         rds.union(node.rd_set_in)
         changed = changed or tmp != rds
 
+  return all_nodes
+
+def const_folding(all_nodes, variables):
+  for n in all_nodes:
+    n.name = simplify(n.name)
+
+  change = True
+  while change:
+    change = False
+    for n in all_nodes:
+      name = n.name
+      name_as_list = name.split()
+      if ":=" in name_as_list:
+        exp = name_as_list[2:]
+        prefix = name_as_list[:2]
+      else:
+        exp = name_as_list 
+        prefix = []
+      for v in variables:
+        if v in exp:
+          exps = []
+          for rd in n.rd_set_in.set:
+            if rd.x == v and rd.node != None and rd.node.name not in exps:
+              exps.append(rd.node.name)
+          if len(exps) == 1:
+            e = to_string(exps[0].split()[2:])
+            if is_exp(e):
+              s = to_string(exp)
+              s = s.replace(v, e)
+              s = to_string(prefix) + s
+              change = change or n.name != s
+              n.name = s
+
+    for n in all_nodes:
+      change = n.name != simplify(n.name) or change
+      n.name = simplify(n.name)
+
 def to_code(ast, decorate = False, tab = 0):
   s = ''
 
@@ -237,7 +274,7 @@ def to_code(ast, decorate = False, tab = 0):
       s += to_code(child, decorate, tab)
   elif ast.name == ':=':
     for i in range(tab):
-      s += '  '
+      s += ' '
     s += str(ast.children[0].name)
     s += ' := '
     s += to_code(ast.children[1], decorate) 
@@ -247,7 +284,7 @@ def to_code(ast, decorate = False, tab = 0):
       s += '\n'
   elif ast.name == 'while':
     for i in range(tab):
-      s += '  '
+      s += ' '
     s += 'while '
     s += to_code(ast.children[0], decorate)
     s += 'do '    
@@ -272,57 +309,11 @@ def to_code(ast, decorate = False, tab = 0):
     s += to_code(ast.children[2], decorate, tab+1)
   elif ast.name in ['*', '-', '+', '<', '<=', '>=', '>', '=', 'and', 'or']:
     s += to_code(ast.children[0], decorate)
-    s += ' ' + ast.name + ' '
+    s += ast.name + ' '
     s += to_code(ast.children[1], decorate)
   else:
-    s += ' ' + str(ast.name) + ' '
+    s += str(ast.name) + ' '
   return s
-
-# ----------------------------------------------------------------------
-count = 0
-def preprocess(L):
-    global count
-#     print(L)
-    if isinstance(L[0],str) | isinstance(L[0], int):
-        count += 1
-        L[0] = str(L[0]) + ' ' + str(count)
-#         print(L[0])
-
-    if len(L) > 1:
-        if isinstance(L[1], list):
-            for e,i in enumerate(L[1]):
-                if isinstance(i,list):
-                    if len(i) > 0:
-                        child = preprocess(i)
-                elif isinstance(i, str) | isinstance(i, int):
-                    L[1][e] = str(i) + ' ' + str(count)
-
-def build(g, L):
-    parents = []
-
-    if len(L) == 0:
-        return
-
-    if isinstance(L[0],str):
-        parent = L[0]
-        parents.append(L[0])
-        g.add_node(parent)
-
-    if len(L) > 1:
-        if isinstance(L[1], list):
-            for c in L[1]:
-#                 print(c)
-                if c!= None and len(c) != 0:
-                    child = build(g, c)
-                    if child != None:
-                        g.add_edge(parent, child[0])
-
-        if isinstance(L[1], str) | isinstance(L[1], int):
-            leaf = L[1]
-            if leaf != ' ':
-                g.add_edge(parent, leaf)
-
-    return parents
 
 def generate_code(path, c):
     data = open(path).read()
@@ -405,7 +396,8 @@ def visualize(path):
   to_cfg(astroot, [cfgroot])
 
   # new stuff we don't need to visualize I think, but idk where to put it right now
-  make_equations(cfgroot, variables)
+  nodes = make_equations(cfgroot, variables)
+  const_folding(nodes, variables)
 
   '''
   count = 0

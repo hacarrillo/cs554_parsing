@@ -43,7 +43,7 @@ class ASTNode:
 class CFGNode:
   count = 0
   def __init__(self, name, label = None):
-    self.name = name
+    self.name = name.rstrip()
     self.parents = []
     self.children = []
     self.count = CFGNode.count
@@ -55,7 +55,7 @@ class CFGNode:
     
     eq = self.name.split()
     if ':=' in eq:
-      self.rdgen = RD(eq[0], label)
+      self.rdgen = RD(eq[0], label, self)
     else:
       self.rdgen = None
     self.rd_set_in = RDSet()
