@@ -191,12 +191,12 @@ def from_cfg_to_code(cfgnode, found=[], tab = 0):
       if cfgnode.children[0] not in found:
         s += from_cfg_to_code(cfgnode.children[0], found + [cfgnode], tab)
   return s
-   
+
 def solve_rd(cfg, variables):
   ineq = []
   outeq = []
 
-  # ------------------------------------  
+  # ------------------------------------
   current = cfg
   found = [cfg]
   stack = [cfg]
@@ -206,7 +206,7 @@ def solve_rd(cfg, variables):
       if child not in found:
         found.append(child)
         stack.insert(0,child)
-  # ------------------------------------  
+  # ------------------------------------
 
   rd_init = RDSet()
   rds_all = RDSet()
@@ -240,7 +240,7 @@ def solve_rd(cfg, variables):
           rds.union(rds_parent)
 
     for node in all_nodes:
-      rds = node.rd_set_out 
+      rds = node.rd_set_out
       tmp = rds.copy()
       rdgen = node.rdgen
       if rdgen != None:
@@ -269,7 +269,7 @@ def const_folding(all_nodes, variables):
         exp = name_as_list[2:]
         prefix = name_as_list[:2]
       else:
-        exp = name_as_list 
+        exp = name_as_list
         prefix = []
       for v in variables:
         if v in exp:
@@ -289,7 +289,7 @@ def const_folding(all_nodes, variables):
     for n in all_nodes:
       change = n.name != simplify(n.name) or change
       n.name = simplify(n.name)
-    
+
 def to_code(ast, decorate = False, tab = 0):
   s = ''
 
@@ -301,7 +301,7 @@ def to_code(ast, decorate = False, tab = 0):
       s += ' '
     s += str(ast.children[0].name)
     s += ' := '
-    s += to_code(ast.children[1], decorate) 
+    s += to_code(ast.children[1], decorate)
     if decorate:
       s += '-- label ' + str(ast.label) + ' \n'
     else:
@@ -311,7 +311,7 @@ def to_code(ast, decorate = False, tab = 0):
       s += ' '
     s += 'while '
     s += to_code(ast.children[0], decorate)
-    s += 'do '    
+    s += 'do '
     if decorate:
       s += '-- label ' + str(ast.children[0].label) + ' \n'
     else:
@@ -370,7 +370,7 @@ def generate_code(path, c):
     # get a stack of commands, preprocess to make it easier to read
     cst = to_stack(pt)
     cst.reverse()
-    
+
     assembly = to_assembly(cst, variables, name)
     f = open(name + '.s','w')
     f.write(assembly)
@@ -403,7 +403,7 @@ def parse(data):
       print('Syntax Error!')
       return
   return pt, variables
-  
+
 def visualize(path):
   data = open(path).read()
   name = os.path.basename(path).split('.')[0]
@@ -450,6 +450,10 @@ def visualize(path):
   nodes = solve_rd(cfgroot, variables)
   # this is already folded
   # const_folding(nodes, variables)
+  #
+  build_ast(astroot)
+  build_cfg(cfgroot)
+
 
   '''
   count = 0
@@ -480,6 +484,112 @@ def visualize(path):
   # ! dot -Tpdf graph.dot -o graph.pdf
   # run the following to print out the tree in a pdf: dot -Tpdf graph.dot -o graph.pdf
 # ----------------------------------------------------------------------
+
+def build_ast(ast_tree):
+    from compile import *
+    import networkx as nx
+    import matplotlib.pyplot as plt
+
+    # create empty graph
+    graph = nx.Graph()
+
+    # add the root node to the graph
+    root = tree[0]
+    graph.add_node(root.count,
+                   name = root.name,
+                   label = root.label)
+
+
+    # all nodes below root will have exactly one parent
+    # add each node to the graph and its parent and create an edge between them
+    # if parents are tried to be added more than one time it doesnt matter, they won't be added again
+
+    for node in tree[1:]:
+        graph_node = node.count
+        node_name = node.name
+        node_label = node.label
+
+        graph.add_node(graph_node,
+                       name = node_name,
+                       label = node_label)
+
+        if node.parent != None:
+            parent = node.parent.count
+            parent_name = node.parent.name
+            parent_label = node.parent.label
+
+            graph.add_node(parent,
+                           name = parent_name,
+                           label = parent_label)
+
+        graph.add_edge(graph_node,parent)
+
+    # plot the tree
+    pos = nx.nx_agraph.graphviz_layout(graph, prog='dot')
+    plt.figure(3,figsize=(20,20))
+
+    colors = [node.label for node in tree]
+    colors = [ int(-1) if value is None else value for value in colors]
+
+    nx.draw(graph, pos, with_labels=False, arrows=False, font_size=10, node_size=2000, node_color=colors, cmap=plt.cm.Spectral, alpha = 0.5)
+    node_labels = nx.get_node_attributes(graph,'name')
+    nx.draw_networkx_labels(graph, pos, labels = node_labels, font_size=15, width=0.5)
+
+    plt.savefig('ast_tree.png')
+# -----------------------------------------------------------------------------------------------------------------
+#
+
+def build_cfg(cfg_tree):
+    # create empty graph
+    graph = nx.Graph()
+
+    # add the root node to the graph
+    root = tree[0]
+    graph.add_node(root.count,
+                   name = root.name,
+                   label = root.label)
+
+
+    # all nodes below root will have exactly one parent
+    # add each node to the graph and its parents and create an edge between them
+    # if parents are tried to be added more than one time it doesnt matter, they won't be added again
+
+    for node in tree[1:]:
+        graph_node = node.count
+        node_name = node.name
+        node_label = node.label
+
+        graph.add_node(graph_node,
+                       name = node_name,
+                       label = node_label)
+
+        if node.parents != None:
+            for parent in node.parents:
+                parent_node = parent.count
+                parent_name = parent.name
+                parent_label = parent.label
+
+                graph.add_node(parent_node,
+                               name = parent_name,
+                               label = parent_label)
+
+                graph.add_edge(graph_node,parent_node)
+
+    # plot the tree
+
+    # pos = nx.nx_agraph.graphviz_layout(graph, prog='dot')
+    plt.figure(3,figsize=(10,10))
+
+    colors = [node.label for node in tree]
+    colors = [ int(-1) if value is None else value for value in colors]
+
+    nx.draw(graph, pos, with_labels=False, arrows=False, font_size=10, node_size=2000, node_color=colors, cmap=plt.cm.Spectral, alpha = 0.5)
+    node_labels = nx.get_node_attributes(graph,'name')
+    nx.draw_networkx_labels(graph, pos, labels = node_labels, font_size=15, width=0.5)
+
+    plt.savefig('cfg_tree.png')
+
+# -----------------------------------------------------------------------------------------------------------------------------
 
 def to_assembly(cst, variables, name):
     assembly = '''  .file "'''+name+'''.c"
