@@ -42,7 +42,8 @@ class ASTNode:
 
 class CFGNode:
   count = 0
-  def __init__(self, name, label = None):
+  # info is for extra info like knowing if this is an 'if' cfgnode
+  def __init__(self, name, label = None, info = None):
     self.name = name.rstrip()
     self.parents = []
     self.children = []
@@ -63,6 +64,8 @@ class CFGNode:
 
     if self.rdgen != None:
       self.rd_set_out.append(self.rdgen)
+    
+    self.info = info
    
   def add_child(self, child): 
     if isinstance(child, CFGNode):

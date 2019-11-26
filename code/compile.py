@@ -150,7 +150,7 @@ def to_cfg(dast, root):
       blocks = [tmp]
 
     if child.name == 'if':
-      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label)
+      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label, 'if')
       for b in blocks:
         b.add_child(tmp_bool)
       tmp_then = to_cfg(child.children[1], [tmp_bool])
@@ -158,7 +158,7 @@ def to_cfg(dast, root):
       blocks = [tmp_then, tmp_else]
 
     if child.name == 'while':
-      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label)
+      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label, 'while')
       for b in blocks:
         b.add_child(tmp_bool)
       tmp_do = to_cfg(child.children[1], [tmp_bool])
@@ -166,10 +166,33 @@ def to_cfg(dast, root):
       blocks = [tmp_bool]
 
   blocks = tmp
-
   return blocks
 
-def make_equations(cfg, variables):
+def from_cfg_to_code(cfgnode, found=[], tab = 0):
+  s = ''
+  for t in range(tab):
+    s += '  '
+  if cfgnode.info == 'if':
+    s += 'if ' + cfgnode.name + 'then\n'
+    if cfgnode.children[0] not in found:
+      s += from_cfg_to_code(cfgnode.children[0], found + [cfgnode], tab + 1)
+    s += 'else\n'
+    if cfgnode.children[0] not in found:
+      s += from_cfg_to_code(cfgnode.children[1], found + [cfgnode], tab + 1)
+    s += 'fi;\n'
+  elif cfgnode.info == 'while':
+    s += 'while ' + cfgnode.name + ' do\n'
+    if cfgnode.children[0] not in found:
+      s += from_cfg_to_code(cfgnode.children[0], found + [cfgnode], tab + 1)
+    s += 'od;\n'
+  else:
+    s += cfgnode.name + ';\n'
+    if len(cfgnode.children) > 0:
+      if cfgnode.children[0] not in found:
+        s += from_cfg_to_code(cfgnode.children[0], found + [cfgnode], tab)
+  return s
+   
+def solve_rd(cfg, variables):
   ineq = []
   outeq = []
 
@@ -229,6 +252,7 @@ def make_equations(cfg, variables):
         rds.union(node.rd_set_in)
         changed = changed or tmp != rds
 
+
   return all_nodes
 
 def const_folding(all_nodes, variables):
@@ -265,7 +289,7 @@ def const_folding(all_nodes, variables):
     for n in all_nodes:
       change = n.name != simplify(n.name) or change
       n.name = simplify(n.name)
-
+    
 def to_code(ast, decorate = False, tab = 0):
   s = ''
 
@@ -357,10 +381,7 @@ def generate_code(path, c):
         print('gcc main.c ' + name + '.s -o ' + name)
         os.system('gcc main.c ' + name + '.s -o ' + name)
 
-def visualize(path):
-  data = open(path).read()
-  name = os.path.basename(path).split('.')[0]
-
+def parse(data):
   lexer = makelex()
   code_tokens = tokenize(lexer, data)
 
@@ -381,6 +402,13 @@ def visualize(path):
   except Exception as e:
       print('Syntax Error!')
       return
+  return pt, variables
+  
+def visualize(path):
+  data = open(path).read()
+  name = os.path.basename(path).split('.')[0]
+
+  pt, variables = parse(data)
 
   # this makes the decorated ast
   # root contains the root of the ast
@@ -389,15 +417,39 @@ def visualize(path):
 
   # this just labels the code
   s = to_code(astroot, True, tab = 0)
+  print(s)
 
   # this makes the the control flow graph
   # pretty much the same data structure as astnode
   cfgroot = CFGNode('root')
   to_cfg(astroot, [cfgroot])
+  # dont need root
+  cfgroot = cfgroot.children[0]
 
   # new stuff we don't need to visualize I think, but idk where to put it right now
-  nodes = make_equations(cfgroot, variables)
+  nodes = solve_rd(cfgroot, variables)
+
+  print()
+  for f in nodes:
+    print('IN '+str(f.label)+' '+f.rd_set_in.__str__())
+  print()
+  for f in nodes:
+    print('OUT '+str(f.label)+' '+f.rd_set_out.__str__())
+  print()
+
   const_folding(nodes, variables)
+  s = from_cfg_to_code(cfgroot)
+  print(s)
+
+  pt, variables = parse(s)
+  astroot = ASTNode('block')
+  to_ast(pt, astroot)
+  cfgroot = CFGNode('root')
+  to_cfg(astroot, [cfgroot])
+  cfgroot = cfgroot.children[0]
+  nodes = solve_rd(cfgroot, variables)
+  # this is already folded
+  # const_folding(nodes, variables)
 
   '''
   count = 0
