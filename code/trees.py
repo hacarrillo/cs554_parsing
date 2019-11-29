@@ -43,7 +43,7 @@ class ASTNode:
 class CFGNode:
   count = 0
   # info is for extra info like knowing if this is an 'if' cfgnode
-  def __init__(self, name, label = None, info = None):
+  def __init__(self, name, label = None, info = None, end = False, ast = None):
     self.name = name.rstrip()
     self.parents = []
     self.children = []
@@ -66,6 +66,8 @@ class CFGNode:
       self.rd_set_out.append(self.rdgen)
     
     self.info = info
+    self.end = end
+    self.ast = ast
    
   def add_child(self, child): 
     if isinstance(child, CFGNode):
@@ -83,4 +85,8 @@ class CFGNode:
       return self.count == other.count
     return False
 
-
+class Block:
+  def __init__(self):
+    self.nodes = []
+    self.parents = []
+    self.children = []

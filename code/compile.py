@@ -17,70 +17,6 @@ from utils import *
 #from networkx.drawing.nx_pydot import write_dot
 
 stackmap = ['a1','a2','a3','a4','a5','a6','a7','t0','t1','t2','t3','t4','t5','t6']
-maxl = 2
-# assign, booleans, skip, if, while, expr
-def to_stack(ast):
-    global maxl
-    if ast == None:
-        return []
-
-    stack = []
-    ld = len(ast)
-    derivation = [a[0] for a in ast]
-    if ['command','SEMICOLON','newcommand'] == derivation:
-        res = to_stack(ast[0][1])
-        res.extend(to_stack(ast[2][1]))
-        return res
-    elif ['IF', 'bool', 'THEN', 'command', 'ELSE', 'command', 'FI'] == derivation:
-        l = maxl
-        maxl += 2
-        res = ['IF']
-        res.extend(to_stack(ast[1][1]))
-        # where to jump
-        res.append('THEN ' + str(l))
-        res.extend(to_stack(ast[3][1]))
-        # where to jump and what to name the else
-        res.append('ELSE ' + str(l+1) + " " + str(l))
-        res.extend(to_stack(ast[5][1]))
-        # what to name the new jmp
-        res.append('FI ' + str(l+1))
-        return res
-    elif ['command'] == derivation or ['newcommand'] == derivation:
-        res = to_stack(ast[0][1])
-        return res
-    elif ['ID','ASSIGN','expression'] == derivation:
-        res = to_stack(ast[2][1])
-        res.append(ast[1][1] + " " + ast[0][1])
-        return res
-    elif ['LPAREN','expression','RPAREN'] == derivation:
-        return to_stack(ast[1][1])
-    elif ['WHILE','bool','DO','command','OD'] == derivation:
-        l = maxl
-        maxl += 2
-        # what to call it and where to jump
-        res = ['DO '+str(l) + " " + str(l+1)]
-        res.extend(to_stack(ast[3][1]))
-        # what to call it
-        res.append('WHILE '+ str(l+1))
-        res.extend(to_stack(ast[1][1]))
-        # where to jump
-        res.append('OD ' + str(l))
-        return res
-    elif ('ID' in derivation or 'INT' in derivation or 'TRUE' in derivation or 'FALSE' in derivation) and ld == 1:
-        return [ast[0][1]]
-    elif ['SKIP'] == derivation:
-        return [ast[0][1]]
-    elif ld == 1:
-        return to_stack(ast[0][1])
-    elif ld == 3:
-        res = to_stack(ast[0][1])
-        res.extend(to_stack(ast[2][1]))
-        res.append(ast[1][1])
-        return res
-    elif ld == 4:
-        res = to_stack(ast[2][1])
-        res.append(ast[0][1])
-        return res
 
 lc = 0
 def to_ast(pt, tree):
@@ -140,56 +76,91 @@ def to_ast(pt, tree):
         tree.add_child(node)
         to_ast(pt[2][1], node)
 
-def to_cfg(dast, root):
-  blocks = root
+def to_cfg(dast, root, block):
+  parents = root
   for i, child in enumerate(dast.children):
     if child.label != dast.label:
-      tmp = CFGNode(to_code(child), child.label)
-      for b in blocks:
+      tmp = CFGNode(to_code(child), child.label, ast = child)
+      block.nodes.append(tmp)
+      for b in parents:
         b.add_child(tmp)
-      blocks = [tmp]
+      parents = [tmp]
 
     if child.name == 'if':
-      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label, 'if')
-      for b in blocks:
+      thenblock = Block()
+      elseblock = Block()
+      afterblock = Block()
+      block.children.append(thenblock)
+      block.children.append(elseblock)
+      block.children.append(afterblock)
+      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label, 'if', ast = child.children[0])
+      block.nodes.append(tmp_bool)
+      for b in parents:
         b.add_child(tmp_bool)
-      tmp_then = to_cfg(child.children[1], [tmp_bool])
-      tmp_else = to_cfg(child.children[2], [tmp_bool])
-      blocks = [tmp_then, tmp_else]
+      tmp_then = to_cfg(child.children[1], [tmp_bool], thenblock)
+      tmp_else = to_cfg(child.children[2], [tmp_bool], elseblock)
+      parents = [tmp_then, tmp_else]
+      block = afterblock
 
     if child.name == 'while':
-      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label, 'while')
-      for b in blocks:
+      doblock = Block()
+      afterblock = Block()
+      block.children.append(doblock)
+      block.children.append(afterblock)
+      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label, 'while', ast = child.children[0])
+      block.nodes.append(tmp_bool)
+      for b in parents:
         b.add_child(tmp_bool)
-      tmp_do = to_cfg(child.children[1], [tmp_bool])
+      tmp_do = to_cfg(child.children[1], [tmp_bool], doblock)
       tmp_do.add_child(tmp_bool)
-      blocks = [tmp_bool]
+      parents = [tmp_bool]
+      block = afterblock
+  
+  parents = tmp
+  return parents
 
-  blocks = tmp
-  return blocks
-
-def from_cfg_to_code(cfgnode, found=[], tab = 0):
+def from_blocks_to_code(block, tab = 0):
   s = ''
-  for t in range(tab):
-    s += '  '
-  if cfgnode.info == 'if':
-    s += 'if ' + cfgnode.name + 'then\n'
-    if cfgnode.children[0] not in found:
-      s += from_cfg_to_code(cfgnode.children[0], found + [cfgnode], tab + 1)
+  # if
+  if len(block.children) == 3:
+    for i in range(len(block.nodes)-1):
+      n = block.nodes[i]
+      for t in range(tab):
+        s += '  '
+      s += n.name + ';\n'
+    for t in range(tab):
+      s += '  '
+    s += 'if ' + block.nodes[-1].name + ' then\n'
+    s += from_blocks_to_code(block.children[0], tab + 1)
+    for t in range(tab):
+      s += '  '
     s += 'else\n'
-    if cfgnode.children[0] not in found:
-      s += from_cfg_to_code(cfgnode.children[1], found + [cfgnode], tab + 1)
+    s += from_blocks_to_code(block.children[1], tab + 1)
+    for t in range(tab):
+      s += '  '
     s += 'fi;\n'
-  elif cfgnode.info == 'while':
-    s += 'while ' + cfgnode.name + ' do\n'
-    if cfgnode.children[0] not in found:
-      s += from_cfg_to_code(cfgnode.children[0], found + [cfgnode], tab + 1)
+    s += from_blocks_to_code(block.children[2], tab)
+  # while
+  elif len(block.children) == 2:
+    for i in range(len(block.nodes)-1):
+      n = block.nodes[i]
+      for t in range(tab):
+        s += '  '
+      s += n.name + ';\n'
+    for t in range(tab):
+      s += '  '
+    s += 'while ' + block.nodes[-1].name + ' do\n'
+    s += from_blocks_to_code(block.children[0], tab + 1)
+    for t in range(tab):
+      s += '  '
     s += 'od;\n'
+    s += from_blocks_to_code(block.children[1], tab)
   else:
-    s += cfgnode.name + ';\n'
-    if len(cfgnode.children) > 0:
-      if cfgnode.children[0] not in found:
-        s += from_cfg_to_code(cfgnode.children[0], found + [cfgnode], tab)
+    for i in range(len(block.nodes)):
+      n = block.nodes[i]
+      for t in range(tab):
+        s += '  '
+      s += n.name + ';\n'
   return s
 
 def solve_rd(cfg, variables):
@@ -298,7 +269,7 @@ def to_code(ast, decorate = False, tab = 0):
       s += to_code(child, decorate, tab)
   elif ast.name == ':=':
     for i in range(tab):
-      s += ' '
+      s += '  '
     s += str(ast.children[0].name)
     s += ' := '
     s += to_code(ast.children[1], decorate)
@@ -308,7 +279,7 @@ def to_code(ast, decorate = False, tab = 0):
       s += '\n'
   elif ast.name == 'while':
     for i in range(tab):
-      s += ' '
+      s += '  '
     s += 'while '
     s += to_code(ast.children[0], decorate)
     s += 'do '
@@ -317,69 +288,96 @@ def to_code(ast, decorate = False, tab = 0):
     else:
       s += '\n'
     s += to_code(ast.children[1], decorate, tab+1)
+    for i in range(tab):
+      s += '  '
     s += 'od '+ '\n'
   elif ast.name == 'if':
     for i in range(tab):
       s += '  '
     s += 'if '
     s += to_code(ast.children[0], decorate)
+    for i in range(tab):
+      s += '  '
     s += 'then '
     if decorate:
       s += '-- label ' + str(ast.children[0].label) + ' \n'
     else:
       s += '\n'
     s += to_code(ast.children[1], decorate, tab+1)
+    for i in range(tab):
+      s += '  '
     s += 'else '+ '\n'
     s += to_code(ast.children[2], decorate, tab+1)
+    for i in range(tab):
+      s += '  '
+    s += 'fi '+ '\n'
   elif ast.name in ['*', '-', '+', '<', '<=', '>=', '>', '=', 'and', 'or']:
     s += to_code(ast.children[0], decorate)
     s += ast.name + ' '
     s += to_code(ast.children[1], decorate)
+  elif ast.name == 'skip':
+    for i in range(tab):
+      s += '  '
+    s += 'skip '
+    if decorate:
+      s += '-- label ' + str(ast.label) + ' \n'
+    else:
+      s += '\n'
   else:
     s += str(ast.name) + ' '
   return s
 
 def generate_code(path, c):
-    data = open(path).read()
-    name = os.path.basename(path).split('.')[0]
+  data = open(path).read()
+  name = os.path.basename(path).split('.')[0]
 
-    lexer = makelex()
-    code_tokens = tokenize(lexer, data)
+  pt, variables = parse(data)
 
-    # this is to keep track of variables
-    var = []
-    for t in code_tokens:
-        if t.type == "ID":
-            var.append(t.value)
-    variables = []
-    for v in var:
-        if v not in variables:
-            variables.append(v)
-    variables_sorted = sorted(variables)
+  # this makes the decorated ast
+  # root contains the root of the ast
+  astroot = ASTNode('block')
+  to_ast(pt, astroot)
 
-    parser = makeparser()
-    try:
-        pt = parser.parse(data)
-    except Exception as e:
-        print('Syntax Error!')
-        return
+  # this just labels the code
+  s = to_code(astroot, True, tab = 0)
 
-    # make the main file which we will link to
-    make_main(name, variables, variables_sorted)
+  # this makes the the control flow graph and blocks
+  # pretty much the same data structure as astnode
+  cfgroot = CFGNode('root')
+  blocks = Block()
+  to_cfg(astroot, [cfgroot], blocks)
+  # dont need root
+  cfgroot = cfgroot.children[0]
+  nodes = get_cfg_nodes(cfgroot)
 
-    # get a stack of commands, preprocess to make it easier to read
-    cst = to_stack(pt)
-    cst.reverse()
+  # new stuff we don't need to visualize I think, but idk where to put it right now
+  solve_rd(cfgroot, variables)
 
-    assembly = to_assembly(cst, variables, name)
-    f = open(name + '.s','w')
-    f.write(assembly)
-    f.close()
+  const_folding(nodes, variables)
+  s = from_blocks_to_code(blocks, tab = 0)
 
-    # compile if asked to
-    if c:
-        print('gcc main.c ' + name + '.s -o ' + name)
-        os.system('gcc main.c ' + name + '.s -o ' + name)
+  # rebuild instead of having to deal with the ast again
+  pt, variables = parse(s)
+  astroot = ASTNode('block')
+  to_ast(pt, astroot)
+  cfgroot = CFGNode('root')
+  blocks = Block()
+  to_cfg(astroot, [cfgroot], blocks)
+  cfgroot = cfgroot.children[0]
+  nodes = get_cfg_nodes(cfgroot)
+  solve_rd(cfgroot, variables)
+
+  #cfg_to_assembly_loop(nodes, variables)
+  assembly = to_assembly(blocks, variables, name)
+
+  f = open(name + '.s','w')
+  f.write(assembly)
+  f.close()
+
+  # compile if asked to
+  if c:
+      print('gcc main.c ' + name + '.s -o ' + name)
+      os.system('gcc main.c ' + name + '.s -o ' + name)
 
 def parse(data):
   lexer = makelex()
@@ -419,15 +417,18 @@ def visualize(path):
   s = to_code(astroot, True, tab = 0)
   print(s)
 
-  # this makes the the control flow graph
+  # this makes the the control flow graph and blocks
   # pretty much the same data structure as astnode
   cfgroot = CFGNode('root')
-  to_cfg(astroot, [cfgroot])
+  blocks = Block()
+  to_cfg(astroot, [cfgroot], blocks)
   # dont need root
   cfgroot = cfgroot.children[0]
+  print()
+  nodes = get_cfg_nodes(cfgroot)
 
   # new stuff we don't need to visualize I think, but idk where to put it right now
-  nodes = solve_rd(cfgroot, variables)
+  solve_rd(cfgroot, variables)
 
   print()
   for f in nodes:
@@ -438,21 +439,26 @@ def visualize(path):
   print()
 
   const_folding(nodes, variables)
-  s = from_cfg_to_code(cfgroot)
+  s = from_blocks_to_code(blocks, tab = 0)
   print(s)
 
+  # rebuild instead of having to deal with the ast again
   pt, variables = parse(s)
   astroot = ASTNode('block')
   to_ast(pt, astroot)
   cfgroot = CFGNode('root')
-  to_cfg(astroot, [cfgroot])
+  blocks = Block()
+  to_cfg(astroot, [cfgroot], blocks)
   cfgroot = cfgroot.children[0]
-  nodes = solve_rd(cfgroot, variables)
-  # this is already folded
-  # const_folding(nodes, variables)
-  #
-  build_ast(astroot)
-  build_cfg(cfgroot)
+  nodes = get_cfg_nodes(cfgroot)
+  solve_rd(cfgroot, variables)
+
+  #cfg_to_assembly_loop(nodes, variables)
+  s = to_assembly(blocks, variables, name)
+  print(s)
+
+  #build_ast(astroot)
+  #build_cfg(cfgroot)
 
 
   '''
@@ -486,7 +492,6 @@ def visualize(path):
 # ----------------------------------------------------------------------
 
 def build_ast(ast_tree):
-    from compile import *
     import networkx as nx
     import matplotlib.pyplot as plt
 
@@ -591,7 +596,7 @@ def build_cfg(cfg_tree):
 
 # -----------------------------------------------------------------------------------------------------------------------------
 
-def to_assembly(cst, variables, name):
+def to_assembly(blocks, variables, name):
     assembly = '''  .file "'''+name+'''.c"
   .option nopic
   .text
@@ -604,18 +609,20 @@ def to_assembly(cst, variables, name):
   sd  s0,24(sp)
   addi  s0,sp,32'''
 
-    stack_height = 0
-    assembly += assembly_loop(cst, variables, stack_height)
+    assembly += blocks_to_assembly(blocks, variables)
 
     assembly += '\n  ld  s0,24(sp)\n  addi  sp,sp,32\n  jr  ra'
     assembly += '\n  .size ' + name +', .-'+name+'\n  .ident  \"GCC: (GNU) 9.0.1 20190123 (Red Hat 9.0.1-0.1)\"\n  .section  .note.GNU-stack,\"\",@progbits'
     return assembly
 
-def assembly_loop(cst, variables, stack_height, assembly = ''):
+stack_height = 0
+def assembly_loop(cst, variables, assembly = ''):
+    global stack_height
     labels = []
     maxlabel = 2
     while len(cst) > 0:
-        item = cst.pop()
+        node = cst.pop()
+        item = node.name
         if isinstance(item, int):
             assembly += '\n  li '+stackmap[stack_height]+', '+str(item)
             stack_height += 1
@@ -670,7 +677,7 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
                 assembly += '\n  seqz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
             stack_height -= 1
         elif ':=' in item:
-            var = item.split()[1]
+            var = node.children[0].name
             idx = variables.index(var)
             assembly += '\n  sd '+stackmap[stack_height-1]+', '+str(idx*8)+'(a0)'
             stack_height -= 1
@@ -702,6 +709,106 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             assembly += '\n.L' + n+':'
 
     return assembly
+
+def get_cfg_nodes(cfgnode, found=[]):
+  if cfgnode.info == 'if':
+    if cfgnode not in found:
+      found += [cfgnode]
+    if cfgnode.children[0] not in found:
+      found = get_cfg_nodes(cfgnode.children[0], found)
+    if cfgnode.children[1] not in found:
+      found = get_cfg_nodes(cfgnode.children[1], found)
+  elif cfgnode.info == 'while':
+    if cfgnode not in found:
+      found += [cfgnode]
+    for c in cfgnode.children:
+      if c not in found:
+        found = get_cfg_nodes(c, found)
+  else:
+    found += [cfgnode]
+    if len(cfgnode.children) > 0:
+      if cfgnode.children[0] not in found:
+        found = get_cfg_nodes(cfgnode.children[0], found)
+  return found
+
+def get_ast_exp_nodes(ast, found = []):
+  if ast.name != ':=':
+    for child in ast.children:
+      found = get_ast_exp_nodes(child, found)
+    found += [ast]
+  else:
+    found = get_ast_exp_nodes(ast.children[1])
+    found += [ast]
+  return found
+
+def blocks_to_assembly(block, variables):
+  global stack_height
+
+  s = ''
+  nodes = block.nodes
+  nodes.reverse()
+  # if
+  if len(block.children) == 3:
+    while len(nodes) > 0:
+      cfgnode = nodes.pop()
+      astnodes = get_ast_exp_nodes(cfgnode.ast, [])
+      astnodes.reverse()
+      s += assembly_loop(astnodes, variables, '')
+     
+    label_then = str(block.children[0].nodes[0].label)
+    label_else = str(block.children[1].nodes[0].label)
+    if len(block.children[2].nodes) > 0:
+      label_after = str(block.children[2].nodes[0].label)
+    else:
+      label_after = str(ASTNode.count)
+      ASTNode.count += 1
+
+    s += '\n  bnez ' + stackmap[stack_height-1]+', .L' + label_then
+    stack_height -= 1
+    s += '\n  j .L' + label_else
+    s += '\n.L' + label_then +':'
+    s += blocks_to_assembly(block.children[0], variables)
+    s += '\n  j .L' + label_after
+    s += '\n.L' + label_else +':'
+    s += blocks_to_assembly(block.children[1], variables)
+    s += '\n.L' + label_after +':'
+    if len(block.children[2].nodes) > 0:
+      s += blocks_to_assembly(block.children[2], variables)
+    else:
+      s += '\n  nop' 
+  # while
+  elif len(block.children) == 2:
+    while len(nodes) > 0:
+      cfgnode = nodes.pop()
+      astnodes = get_ast_exp_nodes(cfgnode.ast, [])
+      astnodes.reverse()
+      s += assembly_loop(astnodes, variables, '')
+
+    label_do = str(block.children[0].nodes[0].label)
+    if len(block.children[1].nodes) > 0:
+      label_after = str(block.children[1].nodes[0].label)
+    else:
+      label_after = str(ASTNode.count)
+      ASTNode.count += 1
+
+    s += '\n  bnez ' + stackmap[stack_height-1]+', .L' + label_do
+    stack_height -= 1
+    s += '\n  j .L' + label_after
+    s += '\n.L' + label_do +':'
+    s += blocks_to_assembly(block.children[0], variables)
+    s += '\n.L' + label_after +':'
+    if len(block.children[1].nodes) > 0:
+      s += blocks_to_assembly(block.children[1], variables)
+    else:
+      s += '\n  nop'
+  else:
+    while len(nodes) > 0:
+      cfgnode = nodes.pop()
+      astnodes = get_ast_exp_nodes(cfgnode.ast, [])
+      astnodes.reverse()
+      s += assembly_loop(astnodes, variables, '')
+  nodes.reverse()
+  return s
 
 def make_main(name, variables, variables_sorted):
     main = '''#include <stdlib.h>
