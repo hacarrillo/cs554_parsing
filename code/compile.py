@@ -223,7 +223,6 @@ def solve_rd(cfg, variables):
         rds.union(node.rd_set_in)
         changed = changed or tmp != rds
 
-
   return all_nodes
 
 def const_folding(all_nodes, variables):
@@ -683,30 +682,6 @@ def assembly_loop(cst, variables, assembly = ''):
             stack_height -= 1
         elif 'skip' == item:
             assembly += '\n  nop'
-        elif 'WHILE' in item:
-            n = item.split()[1]
-            assembly += '\n.L'+n+':'
-            labels.append(maxlabel)
-        elif 'DO' in item:
-            n = item.split()[1]
-            to = item.split()[2]
-            assembly += '\n  j .L' + to + '\n.L' + n+':'
-            labels.append(maxlabel)
-        elif 'OD' in item:
-            to = item.split()[1]
-            assembly += '\n  bnez ' + stackmap[stack_height-1]+', .L' + to
-            stack_height -= 1
-        elif 'THEN' in item:
-            to = item.split()[1]
-            assembly += '\n  beqz ' + stackmap[stack_height-1]+', .L' + to
-            stack_height -= 1
-        elif 'ELSE' in item:
-            n = item.split()[2]
-            to = item.split()[1]
-            assembly += '\n  j .L' + to + '\n.L' + n+':'
-        elif 'FI' in item:
-            n = item.split()[1]
-            assembly += '\n.L' + n+':'
 
     return assembly
 
