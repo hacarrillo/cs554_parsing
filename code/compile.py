@@ -76,45 +76,51 @@ def to_ast(pt, tree):
         tree.add_child(node)
         to_ast(pt[2][1], node)
 
-def to_cfg(dast, root, block):
+def to_cfg(dast, root, block, variables, depth = 0):
   parents = root
+  length = len(dast.children)
   for i, child in enumerate(dast.children):
     if child.label != dast.label:
-      tmp = CFGNode(to_code(child), child.label, ast = child)
+      tmp = CFGNode(to_code(child), child.label, ast = child, variables=variables)
       block.nodes.append(tmp)
       for b in parents:
         b.add_child(tmp)
       parents = [tmp]
-
-    if child.name == 'if':
+    elif child.name == 'if':
       thenblock = Block()
       elseblock = Block()
       afterblock = Block()
       block.children.append(thenblock)
       block.children.append(elseblock)
       block.children.append(afterblock)
-      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label, 'if', ast = child.children[0])
+      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label, 'if', ast = child.children[0], variables=variables)
       block.nodes.append(tmp_bool)
       for b in parents:
         b.add_child(tmp_bool)
-      tmp_then = to_cfg(child.children[1], [tmp_bool], thenblock)
-      tmp_else = to_cfg(child.children[2], [tmp_bool], elseblock)
+      tmp_then = to_cfg(child.children[1], [tmp_bool], thenblock, variables, depth+1)
+      tmp_else = to_cfg(child.children[2], [tmp_bool], elseblock, variables, depth+1)
       parents = [tmp_then, tmp_else]
       block = afterblock
-
-    if child.name == 'while':
+    elif child.name == 'while':
       doblock = Block()
       afterblock = Block()
       block.children.append(doblock)
       block.children.append(afterblock)
-      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label, 'while', ast = child.children[0])
+      tmp_bool = CFGNode(to_code(child.children[0]), child.children[0].label, 'while', ast = child.children[0], variables=variables)
       block.nodes.append(tmp_bool)
       for b in parents:
         b.add_child(tmp_bool)
-      tmp_do = to_cfg(child.children[1], [tmp_bool], doblock)
+      tmp_do = to_cfg(child.children[1], [tmp_bool], doblock, variables, depth+1)
       tmp_do.add_child(tmp_bool)
       parents = [tmp_bool]
       block = afterblock
+
+    if length == i+1 and depth == 0:
+      tmp = CFGNode('return', 999999, 'while', variables=variables)
+      tmp.var = 'output'
+      tmp.used = []
+      for b in parents:
+        b.add_child(tmp)
   
   parents = tmp
   return parents
@@ -344,7 +350,7 @@ def generate_code(path, c):
   # pretty much the same data structure as astnode
   cfgroot = CFGNode('root')
   blocks = Block()
-  to_cfg(astroot, [cfgroot], blocks)
+  to_cfg(astroot, [cfgroot], blocks, variables)
   # dont need root
   cfgroot = cfgroot.children[0]
   nodes = get_cfg_nodes(cfgroot)
@@ -354,6 +360,7 @@ def generate_code(path, c):
 
   const_folding(nodes, variables)
   s = from_blocks_to_code(blocks, tab = 0)
+  print(s)
 
   # rebuild instead of having to deal with the ast again
   pt, variables = parse(s)
@@ -361,7 +368,7 @@ def generate_code(path, c):
   to_ast(pt, astroot)
   cfgroot = CFGNode('root')
   blocks = Block()
-  to_cfg(astroot, [cfgroot], blocks)
+  to_cfg(astroot, [cfgroot], blocks, variables)
   cfgroot = cfgroot.children[0]
   nodes = get_cfg_nodes(cfgroot)
   solve_rd(cfgroot, variables)
@@ -420,7 +427,7 @@ def visualize(path):
   # pretty much the same data structure as astnode
   cfgroot = CFGNode('root')
   blocks = Block()
-  to_cfg(astroot, [cfgroot], blocks)
+  to_cfg(astroot, [cfgroot], blocks, variables)
   # dont need root
   cfgroot = cfgroot.children[0]
   print()
@@ -447,7 +454,7 @@ def visualize(path):
   to_ast(pt, astroot)
   cfgroot = CFGNode('root')
   blocks = Block()
-  to_cfg(astroot, [cfgroot], blocks)
+  to_cfg(astroot, [cfgroot], blocks, variables)
   cfgroot = cfgroot.children[0]
   nodes = get_cfg_nodes(cfgroot)
   solve_rd(cfgroot, variables)
@@ -723,6 +730,7 @@ def blocks_to_assembly(block, variables):
   nodes = block.nodes
   nodes.reverse()
   # if
+  print(block.nodes)
   if len(block.children) == 3:
     while len(nodes) > 0:
       cfgnode = nodes.pop()

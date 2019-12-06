@@ -43,8 +43,23 @@ class ASTNode:
 class CFGNode:
   count = 0
   # info is for extra info like knowing if this is an 'if' cfgnode
-  def __init__(self, name, label = None, info = None, end = False, ast = None):
+  def __init__(self, name, label = None, info = None, end = False, ast = None, variables = []):
     self.name = name.rstrip()
+    if ':=' in self.name:
+      self.var = name.split(':=')[0]
+      self.used = []
+      for v in variables:
+        exp = name.split(':=')[1]
+        if v in exp.split(' '):
+          self.used.append(v) 
+    else:
+      self.var = None
+      self.used = []
+      for v in variables:
+        if v in name.split(' '):
+          self.used.append(v) 
+    
+    
     self.parents = []
     self.children = []
     self.count = CFGNode.count
