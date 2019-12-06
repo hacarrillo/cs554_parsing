@@ -121,8 +121,8 @@ def to_cfg(dast, root, block, variables, depth = 0):
       tmp.used = []
       for b in parents:
         b.add_child(tmp)
-  
-  parents = tmp
+      parents = [tmp]
+
   return parents
 
 def from_blocks_to_code(block, tab = 0):
@@ -733,7 +733,7 @@ def blocks_to_assembly(block, variables):
       astnodes = get_ast_exp_nodes(cfgnode.ast, [])
       astnodes.reverse()
       s += assembly_loop(astnodes, variables, '')
-     
+
     label_then = str(block.children[0].nodes[0].label)
     label_else = str(block.children[1].nodes[0].label)
     if len(block.children[2].nodes) > 0:
@@ -754,7 +754,7 @@ def blocks_to_assembly(block, variables):
     if len(block.children[2].nodes) > 0:
       s += blocks_to_assembly(block.children[2], variables)
     else:
-      s += '\n  nop' 
+      s += '\n  nop'
   # while
   elif len(block.children) == 2:
     while len(nodes) > 1:
