@@ -123,6 +123,8 @@ def to_cfg(dast, root, block, variables, depth = 0):
         b.add_child(tmp)
       parents = [tmp]
 
+  parents = tmp
+
   return parents
 
 def from_blocks_to_code(block, tab = 0):
@@ -353,7 +355,7 @@ def generate_code(path, c):
   to_cfg(astroot, [cfgroot], blocks, variables)
   # dont need root
   cfgroot = cfgroot.children[0]
-  nodes = get_cfg_nodes(cfgroot)
+  nodes = get_cfg_nodes(cfgroot, [])
 
   # new stuff we don't need to visualize I think, but idk where to put it right now
   solve_rd(cfgroot, variables)
@@ -370,7 +372,7 @@ def generate_code(path, c):
   blocks = Block()
   to_cfg(astroot, [cfgroot], blocks, variables)
   cfgroot = cfgroot.children[0]
-  nodes = get_cfg_nodes(cfgroot)
+  nodes = get_cfg_nodes(cfgroot, [])
   solve_rd(cfgroot, variables)
 
   #cfg_to_assembly_loop(nodes, variables)
