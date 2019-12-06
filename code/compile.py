@@ -224,10 +224,10 @@ def solve_rd(cfg, variables):
         rds.union(node.rd_set_in)
         rds.remove(rdgen.x)
         rds.append(rdgen)
-        changed = changed or tmp != rds
+        changed = changed or not rds == tmp
       else:
         rds.union(node.rd_set_in)
-        changed = changed or tmp != rds
+        changed = changed or not rds == tmp
 
   return all_nodes
 
@@ -650,7 +650,7 @@ def assembly_loop(cst, variables, assembly = ''):
                 assembly += '\n  slt '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
                 stack_height -= 1
             elif item == 'not':
-                assembly += '\n  seqz '+stackmap[stack_height-1]+', '+stackmap[stack_height-1]
+                assembly += '\n  not '+stackmap[stack_height-1]+', '+stackmap[stack_height-1]
         elif item in ['*','+','-']:
             if item == '*':
                 assembly += '\n  mul '
@@ -662,15 +662,11 @@ def assembly_loop(cst, variables, assembly = ''):
             stack_height -= 1
         elif item in ['<','>','>=','<=','=']:
             if item == '<':
-                assembly += '\n  sub '
-                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                assembly += '\n  sgtz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
+                assembly += '\n  slt ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
             elif item == '>':
-                assembly += '\n  sub '
-                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                assembly += '\n  sltz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
+                assembly += '\n  slt ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
             elif item == '<=':
-                assembly += '\n  addi ' + stackmap[stack_height-1] + ','+stackmap[stack_height-1]+',1'
+                assembly += '\n  addi ' + stackmap[stack_height-1] + ',' + stackmap[stack_height-1]+',1'
                 assembly += '\n  slt '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
             elif item == '>=':
@@ -761,11 +757,18 @@ def blocks_to_assembly(block, variables):
       s += '\n  nop' 
   # while
   elif len(block.children) == 2:
-    while len(nodes) > 0:
+    while len(nodes) > 1:
       cfgnode = nodes.pop()
       astnodes = get_ast_exp_nodes(cfgnode.ast, [])
       astnodes.reverse()
       s += assembly_loop(astnodes, variables, '')
+
+    cfgnode = nodes.pop()
+    bool_label = cfgnode.label
+    s += '\n.L' + str(bool_label) + ':'
+    astnodes = get_ast_exp_nodes(cfgnode.ast, [])
+    astnodes.reverse()
+    s += assembly_loop(astnodes, variables, '')
 
     label_do = str(block.children[0].nodes[0].label)
     if len(block.children[1].nodes) > 0:
@@ -779,6 +782,7 @@ def blocks_to_assembly(block, variables):
     s += '\n  j .L' + label_after
     s += '\n.L' + label_do +':'
     s += blocks_to_assembly(block.children[0], variables)
+    s += '\n j .L' + str(bool_label)
     s += '\n.L' + label_after +':'
     if len(block.children[1].nodes) > 0:
       s += blocks_to_assembly(block.children[1], variables)
