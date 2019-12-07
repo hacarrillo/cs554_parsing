@@ -99,7 +99,11 @@ def to_cfg(dast, root, block, variables, depth = 0):
         b.add_child(tmp_bool)
       tmp_then = to_cfg(child.children[1], [tmp_bool], thenblock, variables, depth+1)
       tmp_else = to_cfg(child.children[2], [tmp_bool], elseblock, variables, depth+1)
-      parents = [tmp_then, tmp_else]
+      parents = []
+      for t in tmp_then:
+        parents.append(t)
+      for t in tmp_else:
+        parents.append(t)
       block = afterblock
     elif child.name == 'while':
       doblock = Block()
@@ -111,7 +115,8 @@ def to_cfg(dast, root, block, variables, depth = 0):
       for b in parents:
         b.add_child(tmp_bool)
       tmp_do = to_cfg(child.children[1], [tmp_bool], doblock, variables, depth+1)
-      tmp_do.add_child(tmp_bool)
+      for t in tmp_do:
+        t.add_child(tmp_bool)
       parents = [tmp_bool]
       block = afterblock
 
@@ -122,8 +127,6 @@ def to_cfg(dast, root, block, variables, depth = 0):
       for b in parents:
         b.add_child(tmp)
       parents = [tmp]
-
-  parents = tmp
 
   return parents
 
@@ -258,8 +261,10 @@ def const_folding(all_nodes, variables):
           if len(exps) == 1:
             e = to_string(exps[0].split()[2:])
             if is_exp(e):
+              for i in range(len(exp)):
+                if v == exp[i]:
+                  exp[i] = e
               s = to_string(exp)
-              s = s.replace(v, e)
               s = to_string(prefix) + s
               change = change or n.name != s
               n.name = s
@@ -322,6 +327,10 @@ def to_code(ast, decorate = False, tab = 0):
     s += to_code(ast.children[0], decorate)
     s += ast.name + ' '
     s += to_code(ast.children[1], decorate)
+  elif ast.name in ['not']:
+    s += 'not ( '
+    s += to_code(ast.children[0])
+    s += ' ) '
   elif ast.name == 'skip':
     for i in range(tab):
       s += '  '
@@ -338,7 +347,8 @@ def generate_code(path, c):
   data = open(path).read()
   name = os.path.basename(path).split('.')[0]
 
-  pt, variables = parse(data)
+  pt, variables, variables_sorted = parse(data)
+  make_main(name, variables, variables_sorted)
 
   # this makes the decorated ast
   # root contains the root of the ast
@@ -365,7 +375,7 @@ def generate_code(path, c):
   print(s)
 
   # rebuild instead of having to deal with the ast again
-  pt, variables = parse(s)
+  pt, variables, variables_sorted = parse(s)
   astroot = ASTNode('block')
   to_ast(pt, astroot)
   cfgroot = CFGNode('root')
@@ -408,13 +418,13 @@ def parse(data):
   except Exception as e:
       print('Syntax Error!')
       return
-  return pt, variables
+  return pt, variables, variables_sorted
 
 def visualize(path):
   data = open(path).read()
   name = os.path.basename(path).split('.')[0]
 
-  pt, variables = parse(data)
+  pt, variables, variables_sorted = parse(data)
 
   # this makes the decorated ast
   # root contains the root of the ast
@@ -451,7 +461,7 @@ def visualize(path):
   print(s)
 
   # rebuild instead of having to deal with the ast again
-  pt, variables = parse(s)
+  pt, variables, variables_sorted = parse(s)
   astroot = ASTNode('block')
   to_ast(pt, astroot)
   cfgroot = CFGNode('root')
