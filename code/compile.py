@@ -1012,8 +1012,6 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
                 assembly += '\n  sub ' + destination +', '+v2+', '+v1
                 assembly += '\n  seqz a2' + ', ' + destination
                 assembly += '\n  mv ' + destination + ', a2'
-                if stored[0]:
-                  assembly += '\n  addi ' + v1+ ', ' + v1+' ,-1'
                 '''
                 assembly += '\n  li a2, 0'
                 assembly += '\n  sub ' + stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
