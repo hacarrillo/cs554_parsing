@@ -834,7 +834,7 @@ def to_assembly(blocks, variables, name, colors, spilled):
     for k in colors:
       if k in variables:
         idx = variables.index(k)
-        assembly += '\n  ld '+colors[k]+', '+str(idx*8)+'(a0) --'+k
+        assembly += '\n  ld '+colors[k]+', '+str(idx*8)+'(a0)'
         allocation[colors[k]] = k
   
     assembly += blocks_to_assembly(blocks, variables, colors, spilled, allocation)
