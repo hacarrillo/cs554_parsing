@@ -479,7 +479,8 @@ def color(edges):
         reg.append(colors[n])
     reg = [r for r in stackmap if r not in reg]
     if len(reg) > 0:
-      colors[v] = reg[0]
+      spilled.append(v)
+      #colors[v] = reg[0]
     else:
       spilled.append(v)
   return colors, spilled
@@ -833,10 +834,18 @@ def to_assembly(blocks, variables, name, colors, spilled):
     for k in colors:
       if k in variables:
         idx = variables.index(k)
-        assembly += '\n  ld '+colors[k]+', '+str(idx*8)+'(a0)'
+        assembly += '\n  ld '+colors[k]+', '+str(idx*8)+'(a0) --'+k
         allocation[colors[k]] = k
   
     assembly += blocks_to_assembly(blocks, variables, colors, spilled, allocation)
+
+    for k in allocation:
+      var = allocation[k]
+      if var != None:
+        if var in variables:
+          idx = variables.index(var)
+          assembly += '\n  sd '+colors[var]+', '+str(idx*8)+'(a0)'
+                
 
     assembly += '\n  ld  s0,24(sp)\n  addi  sp,sp,32\n  jr  ra'
     assembly += '\n  .size ' + name +', .-'+name+'\n  .ident  \"GCC: (GNU) 9.0.1 20190123 (Red Hat 9.0.1-0.1)\"\n  .section  .note.GNU-stack,\"\",@progbits'
@@ -866,6 +875,14 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
               stack_height += 1
               stack.append(stackreg[stack_height])
             elif item not in allocation.values():
+              if allocation[colors[item]] != None:
+                print('SWAP')
+                print(item)
+                prev = allocation[colors[item]]
+                print(prev)
+                previ = variables.index(prev)
+                assembly += '\n  sd '+colors[prev]+', '+str(previ*8)+'(a0) -- THIS'
+                
               idx = variables.index(item)
               assembly += '\n  ld '+colors[item]+', '+str(idx*8)+'(a0)'
               allocation[colors[item]] = item
@@ -1113,7 +1130,7 @@ def blocks_to_assembly(block, variables, colors, spilled, allocation):
       label_after = str(ASTNode.count)
       ASTNode.count += 1
 
-    s += '\n  bnez ' + stackmap[stack_height-1]+', .L' + label_then
+    s += '\n  bnez ' + stackreg[stack_height-1]+', .L' + label_then
     stack_height -= 1
     s += '\n  j .L' + label_else
     s += '\n.L' + label_then +':'
@@ -1148,7 +1165,7 @@ def blocks_to_assembly(block, variables, colors, spilled, allocation):
       label_after = str(ASTNode.count)
       ASTNode.count += 1
 
-    s += '\n  bnez ' + stackmap[stack_height-1]+', .L' + label_do
+    s += '\n  bnez ' + stackreg[stack_height-1]+', .L' + label_do
     stack_height -= 1
     s += '\n  j .L' + label_after
     s += '\n.L' + label_do +':'
