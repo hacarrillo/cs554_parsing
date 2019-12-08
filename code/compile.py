@@ -16,8 +16,7 @@ from utils import *
 #import pydot
 #from networkx.drawing.nx_pydot import write_dot
 
-stackmap = ['a1','a2','a3','a4','a5','a6','a7','t0','t1','t2','t3','t4','t5','t6']
-stackmap = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10']
+stackmap = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
 
 lc = 0
 def to_ast(pt, tree):
@@ -675,33 +674,33 @@ def assembly_loop(cst, variables, assembly = ''):
             stack_height -= 1
         elif item in ['<','>','>=','<=','=']:
             if item == '<':
-                assembly += '\n  li s11, 0'
+                assembly += '\n  li a2, 0'
                 #assembly += '\n  slt ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
-                assembly += '\n  slt s11' + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', s11'
+                assembly += '\n  slt a2' + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
+                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
             elif item == '>':
-                assembly += '\n  li s11, 0'
+                assembly += '\n  li a2, 0'
                 #assembly += '\n  slt ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
-                assembly += '\n  slt s11' + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', s11'
+                assembly += '\n  slt a2' + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
+                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
             elif item == '<=':
-                assembly += '\n  li s11, 0'
+                assembly += '\n  li a2, 0'
                 assembly += '\n  addi ' + stackmap[stack_height-1] + ',' + stackmap[stack_height-1]+',1'
                 #assembly += '\n  slt ' + stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                assembly += '\n  slt s11' + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', s11'
+                assembly += '\n  slt a2' + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
+                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
             elif item == '>=':
-                assembly += '\n  li s11, 0'
+                assembly += '\n  li a2, 0'
                 assembly += '\n  addi ' + stackmap[stack_height-2] + ','+stackmap[stack_height-2]+',1'
                 #assembly += '\n  slt ' + stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
-                assembly += '\n  slt s11' + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', s11'
+                assembly += '\n  slt a2' + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
+                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
             elif item == '=':
-                assembly += '\n  li s11, 0'
+                assembly += '\n  li a2, 0'
                 assembly += '\n  sub ' + stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
                 #assembly += '\n  seqz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
-                assembly += '\n  seqz s11, ' + stackmap[stack_height-2]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', s11'
+                assembly += '\n  seqz a2, ' + stackmap[stack_height-2]
+                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
             stack_height -= 1
         elif ':=' in item:
             var = node.children[0].name
