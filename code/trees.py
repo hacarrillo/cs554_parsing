@@ -46,7 +46,7 @@ class CFGNode:
   def __init__(self, name, label = None, info = None, end = False, ast = None, variables = []):
     self.name = name.rstrip()
     if ':=' in self.name:
-      self.var = name.split(':=')[0]
+      self.var = name.split(':=')[0].split(' ')[0]
       self.used = []
       for v in variables:
         exp = name.split(':=')[1]
@@ -58,7 +58,6 @@ class CFGNode:
       for v in variables:
         if v in name.split(' '):
           self.used.append(v) 
-    
     
     self.parents = []
     self.children = []
@@ -83,7 +82,12 @@ class CFGNode:
     self.info = info
     self.end = end
     self.ast = ast
-   
+    
+    self.live_in = []
+    for v in self.used:
+      self.live_in.append(str(v))
+    self.live_out = []
+
   def add_child(self, child): 
     if isinstance(child, CFGNode):
       self.children.append(child)

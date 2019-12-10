@@ -17,6 +17,7 @@ from utils import *
 #from networkx.drawing.nx_pydot import write_dot
 
 stackmap = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
+stackmap = ['s1','s2','s3']
 
 lc = 0
 def to_ast(pt, tree):
@@ -122,8 +123,10 @@ def to_cfg(dast, root, block, variables, depth = 0):
 
     if length == i+1 and depth == 0:
       tmp = CFGNode('return', 999999, 'while', variables=variables)
-      tmp.var = 'output'
-      tmp.used = []
+      tmp.var = None
+      tmp.used = ['output']
+      tmp.live_in = ['output']
+      tmp.live_out = []
       for b in parents:
         b.add_child(tmp)
       parents = [tmp]
@@ -343,6 +346,142 @@ def to_code(ast, decorate = False, tab = 0):
     s += str(ast.name) + ' '
   return s
 
+def  delete_dead_code(nodes):
+  for v in nodes:
+    if v.var not in v.live_out and v.var != None:
+      v.name = 'skip'
+      tmp_ast = ASTNode('skip', label = v.label, parent = v.ast.parent)
+      tmp_ast.children = v.ast.children
+      v.ast = tmp_ast
+
+def solve_lv(cfg, variables):
+  def union(l1, l2):
+    l3 = []
+    for v in l1:
+       l3.append(v)
+    for v in l2:
+      if v not in l3:
+        l3.append(v) 
+    return l3
+
+  def remove(l1, v):
+    l2 = copy(l1)
+    i = -1
+    try:
+      i = l2.index(v)
+      l2.pop(i)
+      return l2
+    except:
+      return l2
+
+  def copy(l1):
+    l2 = []
+    for v in l1:
+      l2.append(v)
+    return l2
+
+  def eq(l1, l2):
+    for v in l1:
+      if v not in l2:
+        return False
+    for v in l2:
+      if v not in l1:
+        return False
+    return True
+
+  nodes = get_cfg_nodes(cfg, [])
+  changed = True
+  while changed:
+    changed = False
+    for n in nodes:
+      tmp_in = copy(n.live_in)
+      tmp_out = copy(n.live_out)
+      n.live_in = union(n.used, remove(tmp_out, n.var))
+      if not eq(n.live_in, tmp_in):
+        changed = True
+      
+    for n in nodes:
+      tmp_out = copy(n.live_out)
+      new_out = []
+      for c in n.children:
+        new_out = union(new_out, c.live_in)
+      n.live_out = new_out
+      if not eq(n.live_out, tmp_out):
+        changed = True
+
+def make_graph(nodes):
+  edges = []
+  for n in nodes:
+    if n.var != None:
+      for v in n.live_out:
+        if v != n.var:
+          edges.append([n.var,v])
+  return edges
+
+def count_v(edges, v):
+  i = 0
+  for e in edges:
+    if v in e:
+      i += 1
+  return i
+
+def get_v(edges):
+  found = []
+  for e in edges:
+    for v in e:
+      if v not in found:
+        found.append(v)
+  return found
+
+def get_adjacent(edges, v):
+  found = []
+  for e in edges:
+    if v in e:
+      for t in e:
+        if t != v and t not in found:
+          found.append(t) 
+  return found
+
+def remove(edges, aside):
+  nodes = get_v(edges)
+  counts = {}
+  for v in nodes:
+    counts[v] = count_v(edges, v)
+  min_value = min(counts.values())  # maximum value
+  min_keys = [k for k, v in counts.items() if v == min_value]
+  neighbors = get_adjacent(edges, min_keys[0]) 
+  aside.append([min_keys[0],neighbors])
+  idx = []
+  for e in edges:
+    if min_keys[0] in e:
+      idx.append(e)
+  for e in idx:
+    edges.remove(e)
+
+def color(edges):
+  spilled = []
+  aside = []
+  while len(get_v(edges)) > len(stackmap):
+    remove(edges, aside)
+  colors = {}
+  register = {}
+  nodes = get_v(edges)
+  for i, n in enumerate(nodes):
+    colors[n] = stackmap[i]
+  for i in range(len(aside)):
+    v = aside[len(aside)-i-1][0]
+    neighbors = aside[i][1]
+    reg = []
+    for n in neighbors:
+      if n in colors:
+        reg.append(colors[n])
+    reg = [r for r in stackmap if r not in reg]
+    if len(reg) > 0:
+      colors[v] = reg[0]
+    else:
+      spilled.append(v)
+  return colors, spilled
+
 def generate_code(path, c):
   data = open(path).read()
   name = os.path.basename(path).split('.')[0]
@@ -367,11 +506,19 @@ def generate_code(path, c):
   cfgroot = cfgroot.children[0]
   nodes = get_cfg_nodes(cfgroot, [])
 
+  print('Reaching definitions')
+  for n in nodes:
+    print('------------')
+    print(n.name)
+    print("RDS_IN {}: {}".format(n.label, n.rd_set_in)) 
+    print("RDS_OUT {}: {}".format(n.label, n.rd_set_out)) 
+
   # new stuff we don't need to visualize I think, but idk where to put it right now
   solve_rd(cfgroot, variables)
 
   const_folding(nodes, variables)
   s = from_blocks_to_code(blocks, tab = 0)
+  print('\nCONST FOLDED CODE')
   print(s)
 
   # rebuild instead of having to deal with the ast again
@@ -384,6 +531,25 @@ def generate_code(path, c):
   cfgroot = cfgroot.children[0]
   nodes = get_cfg_nodes(cfgroot, [])
   solve_rd(cfgroot, variables)
+  solve_lv(cfgroot, variables)
+
+  print('Liveness analysis')
+  for n in nodes:
+    print('------------')
+    print(n.name)
+    print("Live_in_{}: {}".format(n.label, n.live_in)) 
+    print("Live_out_{}: {}".format(n.label, n.live_out)) 
+
+  delete_dead_code(nodes)
+  s = from_blocks_to_code(blocks, tab = 0)
+  print('\nCODE WITH NO DEAD CODE')
+  print(s)
+
+  edges = make_graph(nodes)
+  colors, spilled = color(edges)
+  print(colors)
+  print(spilled)
+
 
   #cfg_to_assembly_loop(nodes, variables)
   assembly = to_assembly(blocks, variables, name)
@@ -749,8 +915,6 @@ def blocks_to_assembly(block, variables):
   s = ''
   nodes = block.nodes
   nodes.reverse()
-  # if
-  print(block.nodes)
   if len(block.children) == 3:
     while len(nodes) > 0:
       cfgnode = nodes.pop()
