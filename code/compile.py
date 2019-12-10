@@ -272,11 +272,11 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             if item == '<':
                 assembly += '\n  li s1, 0'
                 assembly += '\n  slt s1' + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
+                assembly += '\n  mv ' + stackmap[stack_height-2] + ', s1'
             elif item == '>':
                 assembly += '\n  li s1, 0'
                 assembly += '\n  slt s1' + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
+                assembly += '\n  mv ' + stackmap[stack_height-2] + ', s1'
             elif item == '<=':
                 assembly += '\n  li s1, 0'
                 assembly += '\n  addi ' + stackmap[stack_height-1] + ',' + stackmap[stack_height-1]+',1'
@@ -289,7 +289,7 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
                 assembly += '\n  li s1, 0'
                 assembly += '\n  sub ' + stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
                 assembly += '\n  seqz s1, ' + stackmap[stack_height-2]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
+                assembly += '\n  mv ' + stackmap[stack_height-2] + ', s1'
             stack_height -= 1
         elif ':=' in item:
             var = item.split()[1]
