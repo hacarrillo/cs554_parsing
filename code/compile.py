@@ -80,143 +80,41 @@ def to_stack(ast):
         res.append(ast[0][1])
         return res
 
-lc = 0
 def to_ast(pt, tree):
-    global lc
-    if pt == None:
-      return
     ld = len(pt)
     derivation = [a[0] for a in pt]
     if ['command','SEMICOLON','newcommand'] == derivation:
         to_ast(pt[0][1], tree)
         to_ast(pt[2][1], tree)
     elif ['IF', 'bool', 'THEN', 'command', 'ELSE', 'command', 'FI'] == derivation:
-        node = ASTNode('if', label = None, parent = tree)
-        tree.add_child(node)
-        to_ast(pt[1][1], node)
-        lc = lc + 1
-        block = ASTNode('block', label = None, parent = node)
-        to_ast(pt[3][1], block)
-        node.add_child(block)
-        block = ASTNode('block', label = None, parent = node)
-        to_ast(pt[5][1], block)
-        node.add_child(block)
+        node = ASTNode('IF-THEN-ELSE', parent = tree)
+        node.add_child(to_ast(pt[1][1]))
+        node.add_child(to_ast(pt[3][1]))
+        node.add_child(to_ast(pt[5][1]))
+        return node
     elif ['command'] == derivation or ['newcommand'] == derivation:
-        to_ast(pt[0][1], tree)
+        to_ast(pt[0][1])
     elif ['ID','ASSIGN','expression'] == derivation:
-        node = ASTNode(pt[1][1], label = lc, parent = tree)
-        tree.add_child(node)
-        node.add_child(ASTNode(pt[0][1], label = lc, parent = node))
-        to_ast(pt[2][1], node)
-        lc = lc + 1
+        node = ASTNode('ASSIGN', parent = tree)
+        node.add_child(ASTNode('ASSIGN', parent = node))
+        node.add_child(to_ast(pt[2][1]))
+        return node
     elif ['LPAREN','expression','RPAREN'] == derivation:
-        to_ast(pt[1][1], tree)
+        return to_ast(pt[1][1])
     elif ['WHILE','bool','DO','command','OD'] == derivation:
-        node = ASTNode(pt[0][1], label = None, parent = tree)
-        tree.add_child(node)
-        to_ast(pt[1][1], node)
-        lc = lc + 1
-        block = ASTNode('block', label = None, parent = node)
-        to_ast(pt[3][1], block)
-        node.add_child(block)
+        res = ["WHILE", [to_ast(pt[1][1]), to_ast(pt[3][1])]]
+        return res
     elif ('ID' in derivation or 'INT' in derivation or 'TRUE' in derivation or 'FALSE' in derivation) and ld == 1:
-        node = ASTNode(pt[0][1], label = lc, parent = tree)
-        tree.add_child(node)
+        return [pt[0][1]]
     elif ['SKIP'] == derivation:
-        node = ASTNode(pt[0][1], label = lc, parent = tree)
-        lc = lc + 1
-        tree.add_child(node)
+        return pt[0][1]
     elif ld == 1:
-        to_ast(pt[0][1], tree)
+        return to_ast(pt[0][1])
     elif ld == 3:
-        node = ASTNode(pt[1][1], label = lc, parent = tree)
-        tree.add_child(node)
-        to_ast(pt[0][1], node)
-        to_ast(pt[2][1], node)
+        res = [pt[1][1], [to_ast(pt[0][1]), to_ast(pt[2][1])]]
+        return res
     elif ld == 4:
-        node = ASTNode(pt[0][1], label = lc, parent = tree)
-        tree.add_child(node)
-        to_ast(pt[2][1], node)
-
-def to_cfg(dast, root):
-  block = root
-  for child in dast.children:
-    if child.label != dast.label:
-      tmp = CFGNode(to_code(child))
-      block.add_child(tmp)
-      block = tmp
-
-    if child.name == 'if':
-      tmp_bool = CFGNode(to_code(child.children[0]))
-      block.add_child(tmp_bool)
-      tmp_then = to_cfg(child.children[1], tmp_bool)
-      tmp_else = to_cfg(child.children[2], tmp_bool)
-      block = CFGNode('END IF')
-      tmp_then.add_child(block)
-      tmp_else.add_child(block)
-
-    if child.name == 'while':
-      tmp_bool = CFGNode(to_code(child.children[0]))
-      block.add_child(tmp_bool)
-      tmp_do = to_cfg(child.children[1], tmp_bool)
-      block = CFGNode('END WHILE')
-      tmp_bool.add_child(block)
-      tmp_do.add_child(tmp_bool)
-
-  tmp = CFGNode('END')
-  block.add_child(tmp)
-  block = tmp
-
-  return block
-
-def to_code(ast, decorate = False, tab = 0):
-  s = ''
-
-  if ast.name == 'block':
-    for child in ast.children:
-      s += to_code(child, decorate, tab)
-  elif ast.name == ':=':
-    for i in range(tab):
-      s += '  '
-    s += str(ast.children[0].name)
-    s += ' := '
-    s += to_code(ast.children[1], decorate) 
-    if decorate:
-      s += '-- label ' + str(ast.label) + ' \n'
-    else:
-      s += '\n'
-  elif ast.name == 'while':
-    for i in range(tab):
-      s += '  '
-    s += 'while '
-    s += to_code(ast.children[0], decorate)
-    s += 'do '    
-    if decorate:
-      s += '-- label ' + str(ast.children[0].label) + ' \n'
-    else:
-      s += '\n'
-    s += to_code(ast.children[1], decorate, tab+1)
-    s += 'od '+ '\n'
-  elif ast.name == 'if':
-    for i in range(tab):
-      s += '  '
-    s += 'if '
-    s += to_code(ast.children[0], decorate)
-    s += 'then '
-    if decorate:
-      s += '-- label ' + str(ast.children[0].label) + ' \n'
-    else:
-      s += '\n'
-    s += to_code(ast.children[1], decorate, tab+1)
-    s += 'else '+ '\n'
-    s += to_code(ast.children[2], decorate, tab+1)
-  elif ast.name in ['*', '-', '+', '<', '<=', '>=', '>', '=', 'and', 'or']:
-    s += to_code(ast.children[0], decorate)
-    s += ' ' + ast.name + ' '
-    s += to_code(ast.children[1], decorate)
-  else:
-    s += ' ' + str(ast.name) + ' '
-  return s
+        res = [pt[0][1], [to_ast(pt[0][1])]]
 
 # ----------------------------------------------------------------------
 count = 0
@@ -264,6 +162,8 @@ def build(g, L):
 
     return parents
 
+# ----------------------------------------------------------------------
+
 def generate_code(path, c):
     data = open(path).read()
     name = os.path.basename(path).split('.')[0]
@@ -284,7 +184,7 @@ def generate_code(path, c):
 
     parser = makeparser()
     try:
-        pt = parser.parse(data)
+        result = parser.parse(data)
     except Exception as e:
         print('Syntax Error!')
         return
@@ -293,9 +193,12 @@ def generate_code(path, c):
     make_main(name, variables, variables_sorted)
 
     # get a stack of commands, preprocess to make it easier to read
-    cst = to_stack(pt)
+    cst = to_stack(result)
+    # print(cst)
+    # print('')
     cst.reverse()
-    
+    # print(cst)
+
     assembly = to_assembly(cst, variables, name)
     f = open(name + '.s','w')
     f.write(assembly)
@@ -306,76 +209,8 @@ def generate_code(path, c):
         print('gcc main.c ' + name + '.s -o ' + name)
         os.system('gcc main.c ' + name + '.s -o ' + name)
 
-def visualize(path):
-  data = open(path).read()
-  name = os.path.basename(path).split('.')[0]
+    return result
 
-  lexer = makelex()
-  code_tokens = tokenize(lexer, data)
-
-  # this is to keep track of variables
-  var = []
-  for t in code_tokens:
-      if t.type == "ID":
-          var.append(t.value)
-  variables = []
-  for v in var:
-      if v not in variables:
-          variables.append(v)
-  variables_sorted = sorted(variables)
-
-  parser = makeparser()
-  try:
-      pt = parser.parse(data)
-  except Exception as e:
-      print('Syntax Error!')
-      return
-
-  # this makes the decorated ast
-  # root contains the root of the ast
-  astroot = ASTNode('block')
-  to_ast(pt, astroot)
-
-  # this just labels the code
-  s = to_code(astroot, True, tab = 0)
-  print(s)
-
-  # this makes the the control flow graph
-  # pretty much the same data structure as astnode
-  # don't count on parent to be correct
-  cfgroot = CFGNode('root')
-  to_cfg(astroot, cfgroot)
-
-
-  '''
-  count = 0
-  preprocess(tree)
-  G = nx.DiGraph()
-  build(G, tree)
-  # write_dot(G, "graph.dot")
-
-  attributes = []
-  for node in G.nodes():
-      attr = node.split(' ')
-      attributes.append(attr[0])
-
-  node_list = list(G.nodes())
-  type_dict = { k:v for k,v in zip(node_list,attributes)}
-  nx.set_node_attributes(G, type_dict, 'type')
-  G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
-  '''
-
-#   pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
-#    plt.figure(3,figsize=(5,5))
-#    # 'E0E0E0', 'FFCC99', '#82A9D0', '#F9C56A', '#FF9999', '#A4CACA', '#7DCACA' '#F6D66F'
-#    nx.draw(G, pos, with_labels=False, arrows=False, font_size=5, node_size=1000, node_color='#7DCACA')
-#    node_labels = nx.get_node_attributes(G,'type')
-#    nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=15)
-#    plt.savefig('tree.png')
-#    # write_dot(G, "graph.dot")
-  # ! dot -Tpdf graph.dot -o graph.pdf
-  # run the following to print out the tree in a pdf: dot -Tpdf graph.dot -o graph.pdf
-# ----------------------------------------------------------------------
 
 def to_assembly(cst, variables, name):
     assembly = '''  .file "'''+name+'''.c"
@@ -437,11 +272,11 @@ def assembly_loop(cst, variables, stack_height, assembly = ''):
             if item == '<':
                 assembly += '\n  sub '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                assembly += '\n  sgtz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
+                assembly += '\n  sltz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
             elif item == '>':
                 assembly += '\n  sub '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                assembly += '\n  sltz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
+                assembly += '\n  sgtz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
             elif item == '<=':
                 assembly += '\n  addi ' + stackmap[stack_height-1] + ','+stackmap[stack_height-1]+',1'
                 assembly += '\n  slt '
@@ -530,11 +365,34 @@ int main (int argc, char ** argv)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--c", required=False, action='store_true')
-    parser.add_argument("--v", required=False, action='store_true')
     parser.add_argument("path")
     args = parser.parse_args()
-
-    if args.v:
-      visualize(args.path)
-
     tree = generate_code(args.path, args.c)
+# ----------------------------------------------------------------------
+    '''
+    count = 0
+    preprocess(tree)
+    G = nx.DiGraph()
+    build(G, tree)
+    # write_dot(G, "graph.dot")
+    attributes = []
+    for node in G.nodes():
+        attr = node.split(' ')
+        attributes.append(attr[0])
+    node_list = list(G.nodes())
+    type_dict = { k:v for k,v in zip(node_list,attributes)}
+    nx.set_node_attributes(G, type_dict, 'type')
+    G = nx.convert_node_labels_to_integers(G, first_label=0, ordering='default', label_attribute=None)
+    '''
+
+#   pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
+#    plt.figure(3,figsize=(5,5))
+#    # 'E0E0E0', 'FFCC99', '#82A9D0', '#F9C56A', '#FF9999', '#A4CACA', '#7DCACA' '#F6D66F'
+#    nx.draw(G, pos, with_labels=False, arrows=False, font_size=5, node_size=1000, node_color='#7DCACA')
+#    node_labels = nx.get_node_attributes(G,'type')
+#    nx.draw_networkx_labels(G, pos, labels = node_labels, font_size=15)
+#    plt.savefig('tree.png')
+#    # write_dot(G, "graph.dot")
+    # ! dot -Tpdf graph.dot -o graph.pdf
+    # run the following to print out the tree in a pdf: dot -Tpdf graph.dot -o graph.pdf
+# ----------------------------------------------------------------------
