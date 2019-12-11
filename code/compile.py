@@ -449,7 +449,7 @@ def remove(edges, aside):
   counts = {}
   for v in nodes:
     counts[v] = count_v(edges, v)
-  min_value = min(counts.values())  # maximum value
+  min_value = min(counts.values())
   min_keys = [k for k, v in counts.items() if v == min_value]
   neighbors = get_adjacent(edges, min_keys[0]) 
   aside.append([min_keys[0],neighbors])
@@ -872,8 +872,8 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
             if item in spilled:
               idx = variables.index(item)
               assembly += '\n  ld '+stackreg[stack_height]+', '+str(idx*8)+'(a0)'
-              stack_height += 1
               stack.append(stackreg[stack_height])
+              stack_height += 1
             elif item not in allocation.values():
               if allocation[colors[item]] != None:
                 print('SWAP')
@@ -963,7 +963,6 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
                 assembly += '\n  add '
 
             assembly += destination+', '+v2+', '+v1
-            stack_height -= 1
             '''
             assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
             stack_height -= 1
@@ -1048,7 +1047,6 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
                 assembly += '\n  seqz a2, ' + stackmap[stack_height-2]
                 assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
                 '''
-            stack_height -= 1
         elif ':=' in item:
             '''
             var = node.children[0].name
