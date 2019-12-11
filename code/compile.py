@@ -485,42 +485,12 @@ def color(edges):
       spilled.append(v)
   return colors, spilled
 
-'''
-def get_blocks(blocks, found=[]):
-  for b in blocks.children:
-    found.extend(get_blocks(b, []))
-  return found
-
-def rewrite(blocks, spilled):
-  found = get_blocks(blocks, []) 
-  for s in spilled:
-    l = 0
-    for idx, b in enumerate(blocks):
-      tmp = []
-      for n in b:
-        var = n.var
-        gen = n.used
-        if var == s:
-          tmp.append([idx, nnode])
-        if s in gen:
-      
-  for i in range(len(nodes)):
-    l = 0
-    n = nodes[i]
-    var = n.var
-    if var in spilled:
-      
-    gen = n.used
-    for j in range(i, len(nodes)):
-      for
-    
-'''  
-
 def generate_code(path, c):
   data = open(path).read()
   name = os.path.basename(path).split('.')[0]
 
   pt, variables, variables_sorted = parse(data)
+  print(variables)
   make_main(name, variables, variables_sorted)
 
   # this makes the decorated ast
@@ -581,6 +551,9 @@ def generate_code(path, c):
 
   edges = make_graph(nodes)
   colors, spilled = color(edges)
+  for v in variables: 
+    if v not in colors and v not in spilled:
+      spilled.append(v)
   print(colors)
   print(spilled)
 
