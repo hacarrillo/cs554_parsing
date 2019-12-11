@@ -14,7 +14,7 @@ z := 330;
 if x > y or z > y then
     skip;
 else
-    while z < y and and w < a do
+    while z < y and w < a do
         if a = 123456789 then
             z := z + 1;
             w := w * w * 44 * 158 * 196;
