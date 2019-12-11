@@ -1,7 +1,11 @@
 def is_exp(s):
   try:
     ans = eval(s)
-    return True
+    if isinstance(ans, int):
+        print(ans)
+        return True
+    else:
+        return False
   except:
     return False
 

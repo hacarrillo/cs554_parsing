@@ -17,7 +17,9 @@ from utils import *
 #from networkx.drawing.nx_pydot import write_dot
 
 stackmap = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
-stackmap = ['s1','s2','s3']
+#stackmap = ['s1','s2','s3']
+stackreg = ['a1','a2','a3','a4','a5','a6','a7','t0','t1','t2','t3','t4','t5','t6']
+#stackreg = ['a3','a4','a5']
 
 lc = 0
 def to_ast(pt, tree):
@@ -447,7 +449,7 @@ def remove(edges, aside):
   counts = {}
   for v in nodes:
     counts[v] = count_v(edges, v)
-  min_value = min(counts.values())  # maximum value
+  min_value = min(counts.values())
   min_keys = [k for k, v in counts.items() if v == min_value]
   neighbors = get_adjacent(edges, min_keys[0]) 
   aside.append([min_keys[0],neighbors])
@@ -477,7 +479,8 @@ def color(edges):
         reg.append(colors[n])
     reg = [r for r in stackmap if r not in reg]
     if len(reg) > 0:
-      colors[v] = reg[0]
+      spilled.append(v)
+      #colors[v] = reg[0]
     else:
       spilled.append(v)
   return colors, spilled
@@ -487,6 +490,7 @@ def generate_code(path, c):
   name = os.path.basename(path).split('.')[0]
 
   pt, variables, variables_sorted = parse(data)
+  print(variables)
   make_main(name, variables, variables_sorted)
 
   # this makes the decorated ast
@@ -547,12 +551,15 @@ def generate_code(path, c):
 
   edges = make_graph(nodes)
   colors, spilled = color(edges)
+  for v in variables: 
+    if v not in colors and v not in spilled:
+      spilled.append(v)
   print(colors)
   print(spilled)
 
 
   #cfg_to_assembly_loop(nodes, variables)
-  assembly = to_assembly(blocks, variables, name)
+  assembly = to_assembly(blocks, variables, name, colors, spilled)
 
   f = open(name + '.s','w')
   f.write(assembly)
@@ -780,7 +787,7 @@ def build_cfg(cfg_tree):
 
 # -----------------------------------------------------------------------------------------------------------------------------
 
-def to_assembly(blocks, variables, name):
+def to_assembly(blocks, variables, name, colors, spilled):
     assembly = '''  .file "'''+name+'''.c"
   .option nopic
   .text
@@ -793,14 +800,37 @@ def to_assembly(blocks, variables, name):
   sd  s0,24(sp)
   addi  s0,sp,32'''
 
-    assembly += blocks_to_assembly(blocks, variables)
+    allocation = {}
+    for r in stackmap:
+      allocation[r] = None
+
+    for k in colors:
+      if k in variables:
+        idx = variables.index(k)
+        assembly += '\n  ld '+colors[k]+', '+str(idx*8)+'(a0)'
+        allocation[colors[k]] = k
+  
+    assembly += blocks_to_assembly(blocks, variables, colors, spilled, allocation)
+
+    for k in allocation:
+      var = allocation[k]
+      if var != None:
+        if var in variables:
+          idx = variables.index(var)
+          assembly += '\n  sd '+colors[var]+', '+str(idx*8)+'(a0)'
+                
 
     assembly += '\n  ld  s0,24(sp)\n  addi  sp,sp,32\n  jr  ra'
     assembly += '\n  .size ' + name +', .-'+name+'\n  .ident  \"GCC: (GNU) 9.0.1 20190123 (Red Hat 9.0.1-0.1)\"\n  .section  .note.GNU-stack,\"\",@progbits'
     return assembly
 
 stack_height = 0
-def assembly_loop(cst, variables, assembly = ''):
+# allocation maps registers to variables
+# colors maps variables to registers
+# stackmap contains variables
+# stackreg contains our work
+stack = []
+def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
     global stack_height
     labels = []
     maxlabel = 2
@@ -808,71 +838,210 @@ def assembly_loop(cst, variables, assembly = ''):
         node = cst.pop()
         item = node.name
         if isinstance(item, int):
-            assembly += '\n  li '+stackmap[stack_height]+', '+str(item)
+            assembly += '\n  li '+stackreg[stack_height]+', '+str(item)
+            stack.append(stackreg[stack_height])
             stack_height += 1
         elif item in variables:
-            idx = variables.index(item)
-            assembly += '\n  ld '+stackmap[stack_height]+', '+str(idx*8)+'(a0)'
-            stack_height += 1
+            if item in spilled:
+              idx = variables.index(item)
+              assembly += '\n  ld '+stackreg[stack_height]+', '+str(idx*8)+'(a0)'
+              stack.append(stackreg[stack_height])
+              stack_height += 1
+            elif item not in allocation.values():
+              if allocation[colors[item]] != None:
+                print('SWAP')
+                print(item)
+                prev = allocation[colors[item]]
+                print(prev)
+                previ = variables.index(prev)
+                assembly += '\n  sd '+colors[prev]+', '+str(previ*8)+'(a0) -- THIS'
+                
+              idx = variables.index(item)
+              assembly += '\n  ld '+colors[item]+', '+str(idx*8)+'(a0)'
+              allocation[colors[item]] = item
+              stack.append(colors[item])
+            else:
+              stack.append(colors[item])
         elif item in ['and', 'or', 'not']:
+            # these are never individual variables
+            v1 = stack.pop() 
+            v2 = stack.pop() 
+            '''
+            increment = False
+            if v1 in stackmap and v2 in stackmap:
+              increment = True
+              destination = stackmap[stack_height]
+              stack_height += 1
+            elif v1 in stackreg and v2 in stackreg:
+              increment = False
+              destination = stackmap[stack_height-2]
+              stack_height -= 1
+            else:
+              if v1 in stackreg:
+                destination = v1
+              elif v2 in stackreg:
+                destination = v2
+            '''
+
             if item == 'and':
+                assembly += '\n  add ' + destination+', '+v2+', '+v1
+                assembly += '\n  li '+v1+', 1'
+                assembly += '\n  slt '+v2+', '+v1+', '+v2
+                stack_height -= 1
+                '''
                 assembly += '\n  add '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
                 assembly += '\n  li '+stackmap[stack_height-1]+', 1'
                 assembly += '\n  slt '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
                 stack_height -= 1
+                '''
             elif item == 'or':
+                assembly += '\n  add ' + destination+', '+v2+', '+v1
+                assembly += '\n  li '+v1+', 1'
+                assembly += '\n  slt '+v2+', '+v1+', '+v2
+                stack_height -= 1
+                '''
                 assembly += '\n  add '
                 assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
                 assembly += '\n  li '+stackmap[stack_height-1]+', 0'
                 assembly += '\n  slt '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
                 stack_height -= 1
+                '''
             elif item == 'not':
+                assembly += '\n  not '+v1+', '+v2
+                '''
                 assembly += '\n  not '+stackmap[stack_height-1]+', '+stackmap[stack_height-1]
+                '''
         elif item in ['*','+','-']:
+            v1 = stack.pop() 
+            v2 = stack.pop() 
+            if v1 in stackmap and v2 in stackmap:
+              destination = stackreg[stack_height]
+              stack_height += 1
+            elif v1 in stackreg and v2 in stackreg:
+              destination = stackreg[stack_height-2]
+              stack_height -= 1
+            else:
+              if v1 in stackreg:
+                destination = v1
+              elif v2 in stackreg:
+                destination = v2
+            stack.append(destination)
+
             if item == '*':
                 assembly += '\n  mul '
             elif item == '-':
                 assembly += '\n  sub '
             elif item == '+':
                 assembly += '\n  add '
+
+            assembly += destination+', '+v2+', '+v1
+            '''
             assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
             stack_height -= 1
+            '''
         elif item in ['<','>','>=','<=','=']:
+            v1 = stack.pop() 
+            v2 = stack.pop() 
+            stored = [False, False]
+            if v1 in stackmap and v2 in stackmap:
+              destination = stackreg[stack_height]
+              stack_height += 1
+              stored[0] = True
+              stored[1] = True
+            elif v1 in stackreg and v2 in stackreg:
+              destination = stackreg[stack_height-2]
+              stack_height -= 1
+            else:
+              if v1 in stackreg:
+                destination = v1
+                stored[1] = True
+              elif v2 in stackreg:
+                destination = v2
+                stored[0] = True
+            stack.append(destination)
+
             if item == '<':
                 assembly += '\n  li a2, 0'
-                #assembly += '\n  slt ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
+                assembly += '\n  slt a2' + ', ' + v2 + ', ' + v1
+                assembly += '\n  mv ' + destination + ', a2'
+                '''
+                assembly += '\n  li a2, 0'
                 assembly += '\n  slt a2' + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
                 assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
+                '''
             elif item == '>':
                 assembly += '\n  li a2, 0'
-                #assembly += '\n  slt ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
+                assembly += '\n  slt a2' + ', ' + v1 + ', ' + v2
+                assembly += '\n  mv ' + destination + ', a2'
+                '''
+                assembly += '\n  li a2, 0'
                 assembly += '\n  slt a2' + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
                 assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
+                '''
             elif item == '<=':
                 assembly += '\n  li a2, 0'
+                assembly += '\n  addi ' + v1+ ', ' + v1+' ,1'
+                assembly += '\n  slt a2' + ', ' + v2 + ', ' + v1
+                assembly += '\n  mv ' + destination + ', a2'
+                if stored[0]:
+                  assembly += '\n  addi ' + v1+ ', ' + v1+' ,-1'
+                  
+                '''
+                assembly += '\n  li a2, 0'
                 assembly += '\n  addi ' + stackmap[stack_height-1] + ',' + stackmap[stack_height-1]+',1'
-                #assembly += '\n  slt ' + stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
                 assembly += '\n  slt a2' + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
                 assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
+                '''
             elif item == '>=':
                 assembly += '\n  li a2, 0'
+                assembly += '\n  addi ' + v2+ ', ' + v2+' ,1'
+                assembly += '\n  slt a2' + ', ' + v1 + ', ' + v2
+                assembly += '\n  mv ' + destination + ', a2'
+                if stored[1]:
+                  assembly += '\n  addi ' + v2+ ', ' + v2+' ,-1'
+
+                '''
+                assembly += '\n  li a2, 0'
                 assembly += '\n  addi ' + stackmap[stack_height-2] + ','+stackmap[stack_height-2]+',1'
-                #assembly += '\n  slt ' + stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
                 assembly += '\n  slt a2' + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
                 assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
+                '''
             elif item == '=':
                 assembly += '\n  li a2, 0'
+                assembly += '\n  sub ' + destination +', '+v2+', '+v1
+                assembly += '\n  seqz a2' + ', ' + destination
+                assembly += '\n  mv ' + destination + ', a2'
+                '''
+                assembly += '\n  li a2, 0'
                 assembly += '\n  sub ' + stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                #assembly += '\n  seqz ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-2]
                 assembly += '\n  seqz a2, ' + stackmap[stack_height-2]
                 assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
-            stack_height -= 1
+                '''
         elif ':=' in item:
+            '''
             var = node.children[0].name
             idx = variables.index(var)
             assembly += '\n  sd '+stackmap[stack_height-1]+', '+str(idx*8)+'(a0)'
             stack_height -= 1
+            '''
+            var = node.children[0].name
+            idx = variables.index(var)
+  
+            if var not in allocation.values() and var not in spilled:
+              assembly += '\n  ld '+colors[var]+', '+str(idx*8)+'(a0)'
+              allocation[colors[var]] = var
+
+            if var in spilled or var not in allocation.values():
+              v = stack.pop()
+              assembly += '\n  sd '+v+', '+str(idx*8)+'(a0)'
+              if v in stackreg:
+                stack_height -= 1
+            elif var in allocation.values():
+              v = stack.pop()
+              assembly += '\n  mv '+colors[var]+', '+v
+              if v in stackreg:
+                stack_height -= 1
         elif 'skip' == item:
             assembly += '\n  nop'
 
@@ -909,7 +1078,7 @@ def get_ast_exp_nodes(ast, found = []):
     found += [ast]
   return found
 
-def blocks_to_assembly(block, variables):
+def blocks_to_assembly(block, variables, colors, spilled, allocation):
   global stack_height
 
   s = ''
@@ -920,7 +1089,7 @@ def blocks_to_assembly(block, variables):
       cfgnode = nodes.pop()
       astnodes = get_ast_exp_nodes(cfgnode.ast, [])
       astnodes.reverse()
-      s += assembly_loop(astnodes, variables, '')
+      s += assembly_loop(astnodes, variables, '', colors, spilled, allocation)
 
     label_then = str(block.children[0].nodes[0].label)
     label_else = str(block.children[1].nodes[0].label)
@@ -930,17 +1099,17 @@ def blocks_to_assembly(block, variables):
       label_after = str(ASTNode.count)
       ASTNode.count += 1
 
-    s += '\n  bnez ' + stackmap[stack_height-1]+', .L' + label_then
+    s += '\n  bnez ' + stackreg[stack_height-1]+', .L' + label_then
     stack_height -= 1
     s += '\n  j .L' + label_else
     s += '\n.L' + label_then +':'
-    s += blocks_to_assembly(block.children[0], variables)
+    s += blocks_to_assembly(block.children[0], variables, colors, spilled, allocation)
     s += '\n  j .L' + label_after
     s += '\n.L' + label_else +':'
-    s += blocks_to_assembly(block.children[1], variables)
+    s += blocks_to_assembly(block.children[1], variables, colors, spilled, allocation)
     s += '\n.L' + label_after +':'
     if len(block.children[2].nodes) > 0:
-      s += blocks_to_assembly(block.children[2], variables)
+      s += blocks_to_assembly(block.children[2], variables, colors, spilled, allocation)
     else:
       s += '\n  nop'
   # while
@@ -949,14 +1118,14 @@ def blocks_to_assembly(block, variables):
       cfgnode = nodes.pop()
       astnodes = get_ast_exp_nodes(cfgnode.ast, [])
       astnodes.reverse()
-      s += assembly_loop(astnodes, variables, '')
+      s += assembly_loop(astnodes, variables, '', colors, spilled, allocation)
 
     cfgnode = nodes.pop()
     bool_label = cfgnode.label
     s += '\n.L' + str(bool_label) + ':'
     astnodes = get_ast_exp_nodes(cfgnode.ast, [])
     astnodes.reverse()
-    s += assembly_loop(astnodes, variables, '')
+    s += assembly_loop(astnodes, variables, '', colors, spilled, allocation)
 
     label_do = str(block.children[0].nodes[0].label)
     if len(block.children[1].nodes) > 0:
@@ -965,15 +1134,15 @@ def blocks_to_assembly(block, variables):
       label_after = str(ASTNode.count)
       ASTNode.count += 1
 
-    s += '\n  bnez ' + stackmap[stack_height-1]+', .L' + label_do
+    s += '\n  bnez ' + stackreg[stack_height-1]+', .L' + label_do
     stack_height -= 1
     s += '\n  j .L' + label_after
     s += '\n.L' + label_do +':'
-    s += blocks_to_assembly(block.children[0], variables)
+    s += blocks_to_assembly(block.children[0], variables, colors, spilled, allocation)
     s += '\n j .L' + str(bool_label)
     s += '\n.L' + label_after +':'
     if len(block.children[1].nodes) > 0:
-      s += blocks_to_assembly(block.children[1], variables)
+      s += blocks_to_assembly(block.children[1], variables, colors, spilled, allocation)
     else:
       s += '\n  nop'
   else:
@@ -981,7 +1150,7 @@ def blocks_to_assembly(block, variables):
       cfgnode = nodes.pop()
       astnodes = get_ast_exp_nodes(cfgnode.ast, [])
       astnodes.reverse()
-      s += assembly_loop(astnodes, variables, '')
+      s += assembly_loop(astnodes, variables, '', colors, spilled, allocation)
   nodes.reverse()
   return s
 
