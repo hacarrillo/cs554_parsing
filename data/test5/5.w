@@ -1,5 +1,7 @@
--- liveness analysis
--- output should be 333
+{-
+Test program for liveness analysis
+Output should be 333
+-}
 
 x := 15 + 15;
 y := 20 + 20;
@@ -12,7 +14,11 @@ q := 10 * 10 * 10;
 a := 2 * 2;
 b := 1 * 1;
 c := 0;
+output := 0;
 
 if a > b then
-    output = 333;
+    output := 333;
+else
+    skip;
+
 fi;

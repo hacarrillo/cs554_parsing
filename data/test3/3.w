@@ -1,5 +1,8 @@
--- for constant folding 
--- output should be 1129
+{-
+Test program for constant folding 
+The output should be 1129
+-}
+
 
 a := 15 + 15;
 b := 20 + 20;
