@@ -510,6 +510,8 @@ def generate_code(path, c):
   # dont need root
   cfgroot = cfgroot.children[0]
   nodes = get_cfg_nodes(cfgroot, [])
+  # new stuff we don't need to visualize I think, but idk where to put it right now
+  solve_rd(cfgroot, variables)
 
   print('Reaching definitions')
   for n in nodes:
@@ -517,9 +519,6 @@ def generate_code(path, c):
     print(n.name)
     print("RDS_IN {}: {}".format(n.label, n.rd_set_in)) 
     print("RDS_OUT {}: {}".format(n.label, n.rd_set_out)) 
-
-  # new stuff we don't need to visualize I think, but idk where to put it right now
-  solve_rd(cfgroot, variables)
 
   const_folding(nodes, variables)
   s = from_blocks_to_code(blocks, tab = 0)
