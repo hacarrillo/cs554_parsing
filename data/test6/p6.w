@@ -11,7 +11,7 @@ x := 2220;
 y := 340000000;
 z := 330;
 
-if x > y and z > y then
+if x > y or z > y then
     skip;
 else
     while z < y do
