@@ -998,8 +998,8 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
                 assembly += '\n  addi ' + v2+ ', ' + v2+' ,1'
                 assembly += '\n  slt a2' + ', ' + v1 + ', ' + v2
                 assembly += '\n  mv ' + destination + ', a2'
-                if stored[0]:
-                  assembly += '\n  addi ' + v1+ ', ' + v1+' ,-1'
+                if stored[1]:
+                  assembly += '\n  addi ' + v2+ ', ' + v2+' ,-1'
 
                 '''
                 assembly += '\n  li a2, 0'
