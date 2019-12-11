@@ -18,7 +18,7 @@ from utils import *
 
 stackmap = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
 #stackmap = ['s1','s2','s3']
-stackreg = ['a1','a2','a3','a4','a5','a6','a7','t0','t1','t2','t3','t4','t5','t6']
+stackreg = ['a3','a4','a5','a6','a7','t0','t1','t2','t3']
 #stackreg = ['a3','a4','a5']
 
 lc = 0
@@ -510,6 +510,8 @@ def generate_code(path, c):
   # dont need root
   cfgroot = cfgroot.children[0]
   nodes = get_cfg_nodes(cfgroot, [])
+  # new stuff we don't need to visualize I think, but idk where to put it right now
+  solve_rd(cfgroot, variables)
 
   print('Reaching definitions')
   for n in nodes:
@@ -517,9 +519,6 @@ def generate_code(path, c):
     print(n.name)
     print("RDS_IN {}: {}".format(n.label, n.rd_set_in)) 
     print("RDS_OUT {}: {}".format(n.label, n.rd_set_out)) 
-
-  # new stuff we don't need to visualize I think, but idk where to put it right now
-  solve_rd(cfgroot, variables)
 
   const_folding(nodes, variables)
   s = from_blocks_to_code(blocks, tab = 0)
@@ -1073,7 +1072,10 @@ int main (int argc, char ** argv)
     int i;
     if (argc != ''' + str(len(variables) + 1) + ''')
     {
-        printf ("Usage: ''' + name + ' ' + reduce(lambda x, y : x + " " + y, variables_sorted) + '''\\n");
+        printf ("Usage: ''' + name + ' ' 
+    if len(variables) > 0:
+      main += reduce(lambda x, y : x + " " + y, variables_sorted) 
+    main += '''\\n");
         exit(1);
     }
 '''
