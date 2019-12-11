@@ -549,6 +549,17 @@ def generate_code(path, c):
   print('\nCODE WITH NO DEAD CODE')
   print(s)
 
+  pt, variables, variables_sorted = parse(s)
+  astroot = ASTNode('block')
+  to_ast(pt, astroot)
+  cfgroot = CFGNode('root')
+  blocks = Block()
+  to_cfg(astroot, [cfgroot], blocks, variables)
+  cfgroot = cfgroot.children[0]
+  nodes = get_cfg_nodes(cfgroot, [])
+  solve_rd(cfgroot, variables)
+  solve_lv(cfgroot, variables)
+
   edges = make_graph(nodes)
   colors, spilled = color(edges)
   for v in variables: 
