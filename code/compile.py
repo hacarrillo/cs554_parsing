@@ -491,7 +491,6 @@ def generate_code(path, c):
 
   pt, variables, variables_sorted = parse(data)
   print(variables)
-  make_main(name, variables, variables_sorted)
 
   # this makes the decorated ast
   # root contains the root of the ast
@@ -528,7 +527,7 @@ def generate_code(path, c):
   print(s)
 
   # rebuild instead of having to deal with the ast again
-  pt, variables, variables_sorted = parse(s)
+  pt, variables, variables_sorted = parse(s) 
   astroot = ASTNode('block')
   to_ast(pt, astroot)
   cfgroot = CFGNode('root')
@@ -552,6 +551,7 @@ def generate_code(path, c):
   print(s)
 
   pt, variables, variables_sorted = parse(s)
+  make_main(name, variables, variables_sorted)
   astroot = ASTNode('block')
   to_ast(pt, astroot)
   cfgroot = CFGNode('root')
