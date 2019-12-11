@@ -9,9 +9,9 @@ p1:
   addi  sp,sp,-32
   sd  s0,24(sp)
   addi  s0,sp,32
+  ld s1, 0(a0)
   ld s2, 16(a0)
   ld s3, 8(a0)
-  ld s1, 0(a0)
   nop
   li a3, 1111
   mv s1, a3
@@ -28,7 +28,7 @@ p1:
   j .L41
 .L40:
   nop
-  j .L215
+  j .L209
 .L41:
 .L41:
   li a3, 340000000
@@ -36,7 +36,7 @@ p1:
   slt a2, s3, a3
   mv a3, a2
   bnez a3, .L42
-  j .L216
+  j .L210
 .L42:
   li a3, 123456789
   li a4, 123456789
@@ -63,19 +63,19 @@ p1:
   nop
   nop
   mv s2, s3
-  j .L217
+  j .L211
 .L50:
   nop
-.L217:
+.L211:
   nop
  j .L41
-.L216:
+.L210:
   nop
-.L215:
+.L209:
   nop
-  sd s3, 8(a0)
-  sd s2, 16(a0)
   sd s1, 0(a0)
+  sd s2, 16(a0)
+  sd s3, 8(a0)
   ld  s0,24(sp)
   addi  sp,sp,32
   jr  ra

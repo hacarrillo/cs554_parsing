@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
-extern void comparatornetwork_bestknown_for_11(long int * vars);
+extern void comp_network(long int * vars);
 long int vars [13];
 int main (int argc, char ** argv)
 {
     int i;
     if (argc != 14)
     {
-        printf ("Usage: comparatornetwork_bestknown_for_11 output t w0 w1 w10 w2 w3 w4 w5 w6 w7 w8 w9\n");
+        printf ("Usage: comp_network output t w0 w1 w10 w2 w3 w4 w5 w6 w7 w8 w9\n");
         exit(1);
     }
 
@@ -38,7 +38,7 @@ int main (int argc, char ** argv)
     printf("w7=%ld\n", vars[8]);
     printf("w8=%ld\n", vars[9]);
     printf("w9=%ld\n", vars[10]);
-    comparatornetwork_bestknown_for_11(vars);
+    comp_network(vars);
     printf("Final State:\n");
     printf("output=%ld\n", vars[12]);
     printf("t=%ld\n", vars[2]);

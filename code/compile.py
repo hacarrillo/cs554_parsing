@@ -9,12 +9,6 @@ import os
 from trees import *
 from rd import *
 from utils import *
-#import networkx as nx
-#import matplotlib.pyplot as plt
-#import pygraphviz
-#from networkx.drawing.nx_agraph import write_dot
-#import pydot
-#from networkx.drawing.nx_pydot import write_dot
 
 stackmap = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
 #stackmap = ['s1','s2','s3']
@@ -606,6 +600,13 @@ def parse(data):
   return pt, variables, variables_sorted
 
 def visualize(path):
+  import networkx as nx
+  import matplotlib.pyplot as plt
+  import pygraphviz
+  from networkx.drawing.nx_agraph import write_dot
+  import pydot
+  from networkx.drawing.nx_pydot import write_dot
+
   data = open(path).read()
   name = os.path.basename(path).split('.')[0]
 
@@ -630,7 +631,7 @@ def visualize(path):
   cfgroot = cfgroot.children[0]
   nodes = get_cfg_nodes(cfgroot, [])
 
-  #build_ast(astroot)
+  build_ast(astroot)
   #build_cfg(cfgroot)
 
   '''
@@ -842,24 +843,26 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
               stack.append(colors[item])
         elif item in ['and', 'or', 'not']:
             # these are never individual variables
-
             if item == 'and':
                 v1 = stack.pop() 
                 v2 = stack.pop() 
-                assembly += '\n  add ' + destination+', '+v2+', '+v1
+                assembly += '\n  add ' + v2+', '+v2+', '+v1
                 assembly += '\n  li '+v1+', 1'
                 assembly += '\n  slt '+v2+', '+v1+', '+v2
                 stack_height -= 1
+                stack.append(v2)
             elif item == 'or':
                 v1 = stack.pop() 
                 v2 = stack.pop() 
-                assembly += '\n  add ' + destination+', '+v2+', '+v1
+                assembly += '\n  add ' + v2+', '+v2+', '+v1
                 assembly += '\n  li '+v1+', 1'
                 assembly += '\n  slt '+v2+', '+v1+', '+v2
                 stack_height -= 1
+                stack.append(v2)
             elif item == 'not':
                 v1 = stack.pop() 
                 assembly += '\n  not '+v1+', '+v1
+                stack.append(v1)
         elif item in ['*','+','-']:
             v1 = stack.pop() 
             v2 = stack.pop() 

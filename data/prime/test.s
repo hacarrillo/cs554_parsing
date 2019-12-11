@@ -9,89 +9,110 @@ test:
   addi  sp,sp,-32
   sd  s0,24(sp)
   addi  s0,sp,32
-  li a1, 0
-  sd a1, 0(a0)
-  j .L3
-.L2:
-  li a1, 0
-  sd a1, 16(a0)
-  li a1, 2
-  sd a1, 24(a0)
-  j .L5
-.L4:
-  ld a1, 8(a0)
-  sd a1, 32(a0)
-  ld a1, 16(a0)
+  ld s1, 0(a0)
+  ld s2, 8(a0)
+  ld s4, 16(a0)
+  ld s5, 24(a0)
+  ld s6, 32(a0)
+  li a3, 0
+  mv s1, a3
+.L37:
+  li a3, 2
   li a2, 0
-  sub a1, a1, a2
-  sgtz a1, a1
-  beqz a1, .L6
-  nop
-  j .L7
-.L6:
-  j .L9
-.L8:
-  ld a1, 32(a0)
-  ld a2, 24(a0)
-  mul a1, a1, a2
-  ld a2, 8(a0)
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L10
-  ld a1, 16(a0)
-  li a2, 1
-  add a1, a1, a2
-  sd a1, 16(a0)
-  j .L11
-.L10:
-  nop
-.L11:
-  ld a1, 32(a0)
-  li a2, 1
-  sub a1, a1, a2
-  sd a1, 32(a0)
-.L9:
-  ld a1, 32(a0)
-  li a2, 1
-  addi a1,a1,1
-  slt a1, a2, a1
-  bnez a1, .L8
-.L7:
-  ld a1, 24(a0)
-  li a2, 1
-  add a1, a1, a2
-  sd a1, 24(a0)
-.L5:
-  ld a1, 24(a0)
-  ld a2, 24(a0)
-  mul a1, a1, a2
-  ld a2, 8(a0)
-  addi a2,a2,1
-  slt a1, a1, a2
-  bnez a1, .L4
-  ld a1, 16(a0)
+  addi s2, s2 ,1
+  slt a2, a3, s2
+  mv a3, a2
+  addi s2, s2 ,-1
+  bnez a3, .L38
+  j .L234
+.L38:
+  li a3, 0
+  mv s4, a3
+  li a3, 2
+  mv s5, a3
+.L40:
+  mul a3, s5, s5
   li a2, 0
-  sub a1, a1, a2
-  sgtz a1, a1
-  beqz a1, .L12
+  addi s2, s2 ,1
+  slt a2, a3, s2
+  mv a3, a2
+  addi s2, s2 ,-1
+  bnez a3, .L41
+  j .L50
+.L41:
+  mv s6, s2
+  li a3, 0
+  li a2, 0
+  slt a2, a3, s4
+  mv a3, a2
+  bnez a3, .L43
+  j .L44
+.L43:
   nop
-  j .L13
-.L12:
-  li a1, 1
-  ld a2, 0(a0)
-  add a1, a1, a2
-  sd a1, 0(a0)
-.L13:
-  ld a1, 8(a0)
-  li a2, 1
-  sub a1, a1, a2
-  sd a1, 8(a0)
-.L3:
-  ld a1, 8(a0)
-  li a2, 2
-  addi a1,a1,1
-  slt a1, a2, a1
-  bnez a1, .L2
+  j .L49
+.L44:
+.L44:
+  li a3, 1
+  li a2, 0
+  addi s6, s6 ,1
+  slt a2, a3, s6
+  mv a3, a2
+  addi s6, s6 ,-1
+  bnez a3, .L45
+  j .L235
+.L45:
+  mul a3, s6, s5
+  li a2, 0
+  sub a3, a3, s2
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L46
+  j .L47
+.L46:
+  li a3, 1
+  add a3, s4, a3
+  mv s4, a3
+  j .L48
+.L47:
+  nop
+.L48:
+  li a3, 1
+  sub a3, s6, a3
+  mv s6, a3
+ j .L44
+.L235:
+  nop
+.L49:
+  li a3, 1
+  add a3, s5, a3
+  mv s5, a3
+ j .L40
+.L50:
+  li a3, 0
+  li a2, 0
+  slt a2, a3, s4
+  mv a3, a2
+  bnez a3, .L51
+  j .L52
+.L51:
+  nop
+  j .L53
+.L52:
+  li a3, 1
+  add a3, a3, s1
+  mv s1, a3
+.L53:
+  li a3, 1
+  sub a3, s2, a3
+  mv s2, a3
+ j .L37
+.L234:
+  nop
+  sd s1, 0(a0)
+  sd s2, 8(a0)
+  sd s4, 16(a0)
+  sd s5, 24(a0)
+  sd s6, 32(a0)
   ld  s0,24(sp)
   addi  sp,sp,32
   jr  ra

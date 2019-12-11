@@ -9,9 +9,9 @@ p6:
   addi  sp,sp,-32
   sd  s0,24(sp)
   addi  s0,sp,32
+  ld s1, 0(a0)
   ld s2, 16(a0)
   ld s3, 8(a0)
-  ld s1, 0(a0)
   nop
   li a3, 1111
   mv s1, a3
@@ -29,14 +29,22 @@ p6:
   li a2, 0
   slt a2, a5, a4
   mv a4, a2
-  add a4, a3, a4
+  li a5, 1111
+  li a6, 123456789
+  li a2, 0
+  slt a2, a5, a6
+  mv a5, a2
+  add a4, a4, a5
+  li a5, 1
+  slt a4, a5, a4
+  add a3, a3, a4
   li a4, 1
   slt a3, a4, a3
   bnez a3, .L40
   j .L41
 .L40:
   nop
-  j .L239
+  j .L245
 .L41:
 .L41:
   li a3, 340000000
@@ -47,11 +55,11 @@ p6:
   li a2, 0
   slt a2, s1, a4
   mv a4, a2
-  add a4, a3, a4
+  add a3, a3, a4
   li a4, 1
   slt a3, a4, a3
   bnez a3, .L42
-  j .L240
+  j .L246
 .L42:
   li a3, 123456789
   li a4, 123456789
@@ -78,19 +86,19 @@ p6:
   nop
   nop
   mv s2, s3
-  j .L241
+  j .L247
 .L50:
   nop
-.L241:
+.L247:
   nop
  j .L41
-.L240:
+.L246:
   nop
-.L239:
+.L245:
   nop
-  sd s3, 8(a0)
-  sd s2, 16(a0)
   sd s1, 0(a0)
+  sd s2, 16(a0)
+  sd s3, 8(a0)
   ld  s0,24(sp)
   addi  sp,sp,32
   jr  ra

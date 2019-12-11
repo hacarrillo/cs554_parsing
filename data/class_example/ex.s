@@ -1,7 +1,7 @@
   .file "ex.c"
   .option nopic
   .text
-  .comm vars,40,8
+  .comm vars,16,8
   .align  1
   .globl ex
   .type ex, @function
@@ -9,42 +9,30 @@ ex:
   addi  sp,sp,-32
   sd  s0,24(sp)
   addi  s0,sp,32
-  ld a1, 8(a0)
-  sd a1, 0(a0)
-  li a1, 1
-  li a2, 4
-  add a1, a1, a2
-  sd a1, 16(a0)
-  li a1, 2
-  ld a2, 16(a0)
-  add a1, a1, a2
-  sd a1, 24(a0)
-  ld a1, 24(a0)
-  ld a2, 16(a0)
-  add a1, a1, a2
-  sd a1, 32(a0)
-  j .L3
-.L2:
-  li a1, 2
-  sd a1, 16(a0)
-  li a1, 4
-  sd a1, 16(a0)
-  ld a1, 16(a0)
-  ld a2, 0(a0)
-  mul a1, a1, a2
-  sd a1, 16(a0)
-  ld a1, 0(a0)
-  li a2, 1
-  sub a1, a1, a2
-  sd a1, 0(a0)
-.L3:
-  ld a1, 0(a0)
+  ld s1, 0(a0)
+  ld a3, 8(a0)
+  mv s1, a3
+  nop
+  nop
+  nop
+.L24:
+  li a3, 0
   li a2, 0
-  sub a1, a1, a2
-  sltz a1, a1
-  bnez a1, .L2
-  li a1, 0
-  sd a1, 0(a0)
+  slt a2, a3, s1
+  mv a3, a2
+  bnez a3, .L25
+  j .L29
+.L25:
+  nop
+  nop
+  nop
+  li a3, 1
+  sub a3, s1, a3
+  mv s1, a3
+ j .L24
+.L29:
+  nop
+  sd s1, 0(a0)
   ld  s0,24(sp)
   addi  sp,sp,32
   jr  ra

@@ -9,594 +9,814 @@ test:
   addi  sp,sp,-32
   sd  s0,24(sp)
   addi  s0,sp,32
-  li a1, 0
-  sd a1, 0(a0)
-  li a1, 0
-  sd a1, 8(a0)
-  li a1, 0
-  sd a1, 16(a0)
-  li a1, 0
-  sd a1, 24(a0)
-  li a1, 0
-  sd a1, 32(a0)
-  li a1, 0
-  sd a1, 40(a0)
-  li a1, 0
-  sd a1, 48(a0)
-  li a1, 0
-  sd a1, 56(a0)
-  li a1, 0
-  sd a1, 64(a0)
-  li a1, 0
-  sd a1, 72(a0)
-  j .L3
-.L2:
-  li a1, 0
-  sd a1, 80(a0)
-  j .L5
-.L4:
-  li a1, 0
-  sd a1, 88(a0)
-  li a1, 0
-  sd a1, 96(a0)
-  j .L7
-.L6:
-  ld a1, 72(a0)
+  ld s1, 32(a0)
+  ld s2, 0(a0)
+  ld s3, 40(a0)
+  ld s4, 48(a0)
+  ld s5, 56(a0)
+  ld s6, 64(a0)
+  ld s7, 72(a0)
+  ld s8, 80(a0)
+  ld s9, 104(a0)
+  ld s10, 184(a0)
+  ld s11, 272(a0)
+  li a3, 0
+  mv s2, a3
+  li a3, 0
+  sd a3, 8(a0)
+  li a3, 0
+  sd a3, 16(a0)
+  li a3, 0
+  sd a3, 24(a0)
+  li a3, 0
+  mv s1, a3
+  li a3, 0
+  mv s3, a3
+  li a3, 0
+  mv s4, a3
+  li a3, 0
+  mv s5, a3
+  li a3, 0
+  mv s6, a3
+  li a3, 0
+  mv s7, a3
+.L268:
+  li a3, 3
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L8
-  ld a1, 96(a0)
+  slt a2, s7, a3
+  mv a3, a2
+  bnez a3, .L269
+  j .L353
+.L269:
+  li a3, 0
+  mv s8, a3
+.L270:
+  li a3, 3
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L10
-  ld a1, 112(a0)
-  sd a1, 104(a0)
-  j .L11
-.L10:
-  ld a1, 96(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L12
-  ld a1, 120(a0)
-  sd a1, 104(a0)
-  j .L13
-.L12:
-  ld a1, 96(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L14
-  ld a1, 128(a0)
-  sd a1, 104(a0)
-  j .L15
-.L14:
-  li a1, 0
-  sd a1, 104(a0)
-.L15:
-.L13:
-.L11:
-  j .L9
-.L8:
-  ld a1, 72(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L16
-  ld a1, 96(a0)
+  slt a2, s8, a3
+  mv a3, a2
+  bnez a3, .L271
+  j .L352
+.L271:
+  li a3, 0
+  sd a3, 88(a0)
+  li a3, 0
+  sd a3, 96(a0)
+.L273:
+  ld a3, 96(a0)
+  li a4, 3
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L18
-  ld a1, 136(a0)
-  sd a1, 104(a0)
-  j .L19
-.L18:
-  ld a1, 96(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L20
-  ld a1, 144(a0)
-  sd a1, 104(a0)
-  j .L21
-.L20:
-  ld a1, 96(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L22
-  ld a1, 152(a0)
-  sd a1, 104(a0)
-  j .L23
-.L22:
-  li a1, 0
-  sd a1, 104(a0)
-.L23:
-.L21:
-.L19:
-  j .L17
-.L16:
-  ld a1, 72(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L24
-  ld a1, 96(a0)
+  slt a2, a3, a4
+  mv a3, a2
+  bnez a3, .L274
+  j .L326
+.L274:
+  li a3, 0
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L26
-  ld a1, 160(a0)
-  sd a1, 104(a0)
-  j .L27
-.L26:
-  ld a1, 96(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L28
-  ld a1, 168(a0)
-  sd a1, 104(a0)
-  j .L29
-.L28:
-  ld a1, 96(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L30
-  ld a1, 176(a0)
-  sd a1, 104(a0)
-  j .L31
-.L30:
-  li a1, 0
-  sd a1, 104(a0)
-.L31:
-.L29:
-.L27:
-  j .L25
-.L24:
-  li a1, 0
-  sd a1, 104(a0)
-.L25:
-.L17:
-.L9:
-  ld a1, 96(a0)
+  sub a3, s7, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L275
+  j .L282
+.L275:
+  ld a3, 96(a0)
+  li a4, 0
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L32
-  ld a1, 80(a0)
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L276
+  j .L277
+.L276:
+  ld a3, 112(a0)
+  mv s9, a3
+  j .L1650
+.L277:
+  ld a3, 96(a0)
+  li a4, 1
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L34
-  ld a1, 192(a0)
-  sd a1, 184(a0)
-  j .L35
-.L34:
-  ld a1, 80(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L36
-  ld a1, 200(a0)
-  sd a1, 184(a0)
-  j .L37
-.L36:
-  ld a1, 80(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L38
-  ld a1, 208(a0)
-  sd a1, 184(a0)
-  j .L39
-.L38:
-  li a1, 0
-  sd a1, 184(a0)
-.L39:
-.L37:
-.L35:
-  j .L33
-.L32:
-  ld a1, 96(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L40
-  ld a1, 80(a0)
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L278
+  j .L279
+.L278:
+  ld a3, 120(a0)
+  mv s9, a3
+  j .L1651
+.L279:
+  ld a3, 96(a0)
+  li a4, 2
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L42
-  ld a1, 216(a0)
-  sd a1, 184(a0)
-  j .L43
-.L42:
-  ld a1, 80(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L44
-  ld a1, 224(a0)
-  sd a1, 184(a0)
-  j .L45
-.L44:
-  ld a1, 80(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L46
-  ld a1, 232(a0)
-  sd a1, 184(a0)
-  j .L47
-.L46:
-  li a1, 0
-  sd a1, 184(a0)
-.L47:
-.L45:
-.L43:
-  j .L41
-.L40:
-  ld a1, 96(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L48
-  ld a1, 80(a0)
-  li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L50
-  ld a1, 240(a0)
-  sd a1, 184(a0)
-  j .L51
-.L50:
-  ld a1, 80(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L52
-  ld a1, 248(a0)
-  sd a1, 184(a0)
-  j .L53
-.L52:
-  ld a1, 80(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L54
-  ld a1, 256(a0)
-  sd a1, 184(a0)
-  j .L55
-.L54:
-  li a1, 0
-  sd a1, 184(a0)
-.L55:
-.L53:
-.L51:
-  j .L49
-.L48:
-  li a1, 0
-  sd a1, 184(a0)
-.L49:
-.L41:
-.L33:
-  ld a1, 88(a0)
-  ld a2, 104(a0)
-  ld a3, 184(a0)
-  mul a2, a2, a3
-  add a1, a1, a2
-  sd a1, 88(a0)
-  ld a1, 96(a0)
-  li a2, 1
-  add a1, a1, a2
-  sd a1, 96(a0)
-.L7:
-  ld a1, 96(a0)
-  li a2, 3
-  sub a1, a1, a2
-  sltz a1, a1
-  bnez a1, .L6
-  ld a1, 72(a0)
-  li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L56
-  ld a1, 80(a0)
-  li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L58
-  ld a1, 88(a0)
-  sd a1, 0(a0)
-  j .L59
-.L58:
-  ld a1, 80(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L60
-  ld a1, 88(a0)
-  sd a1, 8(a0)
-  j .L61
-.L60:
-  ld a1, 80(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L62
-  ld a1, 88(a0)
-  sd a1, 16(a0)
-  j .L63
-.L62:
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L280
+  j .L281
+.L280:
+  ld a3, 128(a0)
+  mv s9, a3
+  j .L1652
+.L281:
+  li a3, 0
+  mv s9, a3
+.L1652:
   nop
-.L63:
-.L61:
-.L59:
-  j .L57
-.L56:
-  ld a1, 72(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L64
-  ld a1, 80(a0)
-  li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L66
-  ld a1, 88(a0)
-  sd a1, 24(a0)
-  j .L67
-.L66:
-  ld a1, 80(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L68
-  ld a1, 88(a0)
-  sd a1, 32(a0)
-  j .L69
-.L68:
-  ld a1, 80(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L70
-  ld a1, 88(a0)
-  sd a1, 40(a0)
-  j .L71
-.L70:
+.L1651:
   nop
-.L71:
-.L69:
-.L67:
-  j .L65
-.L64:
-  ld a1, 72(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L72
-  ld a1, 80(a0)
-  li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L74
-  ld a1, 88(a0)
-  sd a1, 48(a0)
-  j .L75
-.L74:
-  ld a1, 80(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L76
-  ld a1, 88(a0)
-  sd a1, 56(a0)
-  j .L77
-.L76:
-  ld a1, 80(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L78
-  ld a1, 88(a0)
-  sd a1, 64(a0)
-  j .L79
-.L78:
+.L1650:
   nop
-.L79:
-.L77:
-.L75:
-  j .L73
-.L72:
+  j .L299
+.L282:
+  li a3, 1
+  li a2, 0
+  sub a3, s7, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L283
+  j .L290
+.L283:
+  ld a3, 96(a0)
+  li a4, 0
+  li a2, 0
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L284
+  j .L285
+.L284:
+  ld a3, 136(a0)
+  mv s9, a3
+  j .L1654
+.L285:
+  ld a3, 96(a0)
+  li a4, 1
+  li a2, 0
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L286
+  j .L287
+.L286:
+  ld a3, 144(a0)
+  mv s9, a3
+  j .L1655
+.L287:
+  ld a3, 96(a0)
+  li a4, 2
+  li a2, 0
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L288
+  j .L289
+.L288:
+  ld a3, 152(a0)
+  mv s9, a3
+  j .L1656
+.L289:
+  li a3, 0
+  mv s9, a3
+.L1656:
   nop
-.L73:
-.L65:
-.L57:
-  ld a1, 80(a0)
-  li a2, 1
-  add a1, a1, a2
-  sd a1, 80(a0)
-.L5:
-  ld a1, 80(a0)
-  li a2, 3
-  sub a1, a1, a2
-  sltz a1, a1
-  bnez a1, .L4
-  ld a1, 72(a0)
-  li a2, 1
-  add a1, a1, a2
-  sd a1, 72(a0)
-.L3:
-  ld a1, 72(a0)
-  li a2, 3
-  sub a1, a1, a2
-  sltz a1, a1
-  bnez a1, .L2
-  li a1, 0
-  sd a1, 264(a0)
-  li a1, 0
-  sd a1, 72(a0)
-  j .L81
-.L80:
-  li a1, 0
-  sd a1, 80(a0)
-  j .L83
-.L82:
-  ld a1, 72(a0)
+.L1655:
+  nop
+.L1654:
+  nop
+  j .L1653
+.L290:
+  li a3, 2
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L84
-  ld a1, 80(a0)
+  sub a3, s7, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L291
+  j .L298
+.L291:
+  ld a3, 96(a0)
+  li a4, 0
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L86
-  ld a1, 0(a0)
-  sd a1, 272(a0)
-  j .L87
-.L86:
-  ld a1, 80(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L88
-  ld a1, 8(a0)
-  sd a1, 272(a0)
-  j .L89
-.L88:
-  ld a1, 80(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L90
-  ld a1, 16(a0)
-  sd a1, 272(a0)
-  j .L91
-.L90:
-  li a1, 0
-  sd a1, 272(a0)
-.L91:
-.L89:
-.L87:
-  j .L85
-.L84:
-  ld a1, 72(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L92
-  ld a1, 80(a0)
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L292
+  j .L293
+.L292:
+  ld a3, 160(a0)
+  mv s9, a3
+  j .L1658
+.L293:
+  ld a3, 96(a0)
+  li a4, 1
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L94
-  ld a1, 24(a0)
-  sd a1, 272(a0)
-  j .L95
-.L94:
-  ld a1, 80(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L96
-  ld a1, 32(a0)
-  sd a1, 272(a0)
-  j .L97
-.L96:
-  ld a1, 80(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L98
-  ld a1, 40(a0)
-  sd a1, 272(a0)
-  j .L99
-.L98:
-  li a1, 0
-  sd a1, 272(a0)
-.L99:
-.L97:
-.L95:
-  j .L93
-.L92:
-  ld a1, 72(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L100
-  ld a1, 80(a0)
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L294
+  j .L295
+.L294:
+  ld a3, 168(a0)
+  mv s9, a3
+  j .L1659
+.L295:
+  ld a3, 96(a0)
+  li a4, 2
   li a2, 0
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L102
-  ld a1, 48(a0)
-  sd a1, 272(a0)
-  j .L103
-.L102:
-  ld a1, 80(a0)
-  li a2, 1
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L104
-  ld a1, 56(a0)
-  sd a1, 272(a0)
-  j .L105
-.L104:
-  ld a1, 80(a0)
-  li a2, 2
-  sub a1, a1, a2
-  seqz a1, a1
-  beqz a1, .L106
-  ld a1, 64(a0)
-  sd a1, 272(a0)
-  j .L107
-.L106:
-  li a1, 0
-  sd a1, 272(a0)
-.L107:
-.L105:
-.L103:
-  j .L101
-.L100:
-  li a1, 0
-  sd a1, 272(a0)
-.L101:
-.L93:
-.L85:
-  ld a1, 264(a0)
-  ld a2, 272(a0)
-  add a1, a1, a2
-  sd a1, 264(a0)
-  ld a1, 80(a0)
-  li a2, 1
-  add a1, a1, a2
-  sd a1, 80(a0)
-.L83:
-  ld a1, 80(a0)
-  li a2, 3
-  sub a1, a1, a2
-  sltz a1, a1
-  bnez a1, .L82
-  ld a1, 72(a0)
-  li a2, 1
-  add a1, a1, a2
-  sd a1, 72(a0)
-.L81:
-  ld a1, 72(a0)
-  li a2, 3
-  sub a1, a1, a2
-  sltz a1, a1
-  bnez a1, .L80
-  ld a1, 264(a0)
-  sd a1, 280(a0)
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L296
+  j .L297
+.L296:
+  ld a3, 176(a0)
+  mv s9, a3
+  j .L1660
+.L297:
+  li a3, 0
+  mv s9, a3
+.L1660:
+  nop
+.L1659:
+  nop
+.L1658:
+  nop
+  j .L1657
+.L298:
+  li a3, 0
+  mv s9, a3
+.L1657:
+  nop
+.L1653:
+  nop
+.L299:
+  ld a3, 96(a0)
+  li a4, 0
+  li a2, 0
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L300
+  j .L307
+.L300:
+  li a3, 0
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L301
+  j .L302
+.L301:
+  ld a3, 192(a0)
+  mv s10, a3
+  j .L1661
+.L302:
+  li a3, 1
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L303
+  j .L304
+.L303:
+  ld a3, 200(a0)
+  mv s10, a3
+  j .L1662
+.L304:
+  li a3, 2
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L305
+  j .L306
+.L305:
+  ld a3, 208(a0)
+  mv s10, a3
+  j .L1663
+.L306:
+  li a3, 0
+  mv s10, a3
+.L1663:
+  nop
+.L1662:
+  nop
+.L1661:
+  nop
+  j .L324
+.L307:
+  ld a3, 96(a0)
+  li a4, 1
+  li a2, 0
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L308
+  j .L315
+.L308:
+  li a3, 0
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L309
+  j .L310
+.L309:
+  ld a3, 216(a0)
+  mv s10, a3
+  j .L1665
+.L310:
+  li a3, 1
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L311
+  j .L312
+.L311:
+  ld a3, 224(a0)
+  mv s10, a3
+  j .L1666
+.L312:
+  li a3, 2
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L313
+  j .L314
+.L313:
+  ld a3, 232(a0)
+  mv s10, a3
+  j .L1667
+.L314:
+  li a3, 0
+  mv s10, a3
+.L1667:
+  nop
+.L1666:
+  nop
+.L1665:
+  nop
+  j .L1664
+.L315:
+  ld a3, 96(a0)
+  li a4, 2
+  li a2, 0
+  sub a3, a3, a4
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L316
+  j .L323
+.L316:
+  li a3, 0
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L317
+  j .L318
+.L317:
+  ld a3, 240(a0)
+  mv s10, a3
+  j .L1669
+.L318:
+  li a3, 1
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L319
+  j .L320
+.L319:
+  ld a3, 248(a0)
+  mv s10, a3
+  j .L1670
+.L320:
+  li a3, 2
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L321
+  j .L322
+.L321:
+  ld a3, 256(a0)
+  mv s10, a3
+  j .L1671
+.L322:
+  li a3, 0
+  mv s10, a3
+.L1671:
+  nop
+.L1670:
+  nop
+.L1669:
+  nop
+  j .L1668
+.L323:
+  li a3, 0
+  mv s10, a3
+.L1668:
+  nop
+.L1664:
+  nop
+.L324:
+  ld a3, 88(a0)
+  mul a4, s9, s10
+  add a3, a3, a4
+  sd a3, 88(a0)
+  ld a3, 96(a0)
+  li a4, 1
+  add a3, a3, a4
+  sd a3, 96(a0)
+ j .L273
+.L326:
+  li a3, 0
+  li a2, 0
+  sub a3, s7, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L327
+  j .L334
+.L327:
+  li a3, 0
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L328
+  j .L329
+.L328:
+  ld a3, 88(a0)
+  mv s2, a3
+  j .L1672
+.L329:
+  li a3, 1
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L330
+  j .L331
+.L330:
+  ld a3, 88(a0)
+  sd a3, 8(a0)
+  j .L1673
+.L331:
+  li a3, 2
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L332
+  j .L333
+.L332:
+  ld a3, 88(a0)
+  sd a3, 16(a0)
+  j .L1674
+.L333:
+  nop
+.L1674:
+  nop
+.L1673:
+  nop
+.L1672:
+  nop
+  j .L351
+.L334:
+  li a3, 1
+  li a2, 0
+  sub a3, s7, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L335
+  j .L342
+.L335:
+  li a3, 0
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L336
+  j .L337
+.L336:
+  ld a3, 88(a0)
+  sd a3, 24(a0)
+  j .L1676
+.L337:
+  li a3, 1
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L338
+  j .L339
+.L338:
+  ld a3, 88(a0)
+  mv s1, a3
+  j .L1677
+.L339:
+  li a3, 2
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L340
+  j .L341
+.L340:
+  ld a3, 88(a0)
+  mv s3, a3
+  j .L1678
+.L341:
+  nop
+.L1678:
+  nop
+.L1677:
+  nop
+.L1676:
+  nop
+  j .L1675
+.L342:
+  li a3, 2
+  li a2, 0
+  sub a3, s7, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L343
+  j .L350
+.L343:
+  li a3, 0
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L344
+  j .L345
+.L344:
+  ld a3, 88(a0)
+  mv s4, a3
+  j .L1680
+.L345:
+  li a3, 1
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L346
+  j .L347
+.L346:
+  ld a3, 88(a0)
+  mv s5, a3
+  j .L1681
+.L347:
+  li a3, 2
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L348
+  j .L349
+.L348:
+  ld a3, 88(a0)
+  mv s6, a3
+  j .L1682
+.L349:
+  nop
+.L1682:
+  nop
+.L1681:
+  nop
+.L1680:
+  nop
+  j .L1679
+.L350:
+  nop
+.L1679:
+  nop
+.L1675:
+  nop
+.L351:
+  li a3, 1
+  add a3, s8, a3
+  mv s8, a3
+ j .L270
+.L352:
+  li a3, 1
+  add a3, s7, a3
+  mv s7, a3
+ j .L268
+.L353:
+  li a3, 0
+  sd a3, 264(a0)
+  li a3, 0
+  mv s7, a3
+.L355:
+  li a3, 3
+  li a2, 0
+  slt a2, s7, a3
+  mv a3, a2
+  bnez a3, .L356
+  j .L386
+.L356:
+  li a3, 0
+  mv s8, a3
+.L357:
+  li a3, 3
+  li a2, 0
+  slt a2, s8, a3
+  mv a3, a2
+  bnez a3, .L358
+  j .L385
+.L358:
+  li a3, 0
+  li a2, 0
+  sub a3, s7, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L359
+  j .L366
+.L359:
+  li a3, 0
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L360
+  j .L361
+.L360:
+  mv s11, s2
+  j .L1683
+.L361:
+  li a3, 1
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L362
+  j .L363
+.L362:
+  ld a3, 8(a0)
+  mv s11, a3
+  j .L1684
+.L363:
+  li a3, 2
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L364
+  j .L365
+.L364:
+  ld a3, 16(a0)
+  mv s11, a3
+  j .L1685
+.L365:
+  li a3, 0
+  mv s11, a3
+.L1685:
+  nop
+.L1684:
+  nop
+.L1683:
+  nop
+  j .L383
+.L366:
+  li a3, 1
+  li a2, 0
+  sub a3, s7, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L367
+  j .L374
+.L367:
+  li a3, 0
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L368
+  j .L369
+.L368:
+  ld a3, 24(a0)
+  mv s11, a3
+  j .L1687
+.L369:
+  li a3, 1
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L370
+  j .L371
+.L370:
+  mv s11, s1
+  j .L1688
+.L371:
+  li a3, 2
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L372
+  j .L373
+.L372:
+  mv s11, s3
+  j .L1689
+.L373:
+  li a3, 0
+  mv s11, a3
+.L1689:
+  nop
+.L1688:
+  nop
+.L1687:
+  nop
+  j .L1686
+.L374:
+  li a3, 2
+  li a2, 0
+  sub a3, s7, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L375
+  j .L382
+.L375:
+  li a3, 0
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L376
+  j .L377
+.L376:
+  mv s11, s4
+  j .L1691
+.L377:
+  li a3, 1
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L378
+  j .L379
+.L378:
+  mv s11, s5
+  j .L1692
+.L379:
+  li a3, 2
+  li a2, 0
+  sub a3, s8, a3
+  seqz a2, a3
+  mv a3, a2
+  bnez a3, .L380
+  j .L381
+.L380:
+  mv s11, s6
+  j .L1693
+.L381:
+  li a3, 0
+  mv s11, a3
+.L1693:
+  nop
+.L1692:
+  nop
+.L1691:
+  nop
+  j .L1690
+.L382:
+  li a3, 0
+  mv s11, a3
+.L1690:
+  nop
+.L1686:
+  nop
+.L383:
+  ld a3, 264(a0)
+  add a3, a3, s11
+  sd a3, 264(a0)
+  li a3, 1
+  add a3, s8, a3
+  mv s8, a3
+ j .L357
+.L385:
+  li a3, 1
+  add a3, s7, a3
+  mv s7, a3
+ j .L355
+.L386:
+  ld a3, 264(a0)
+  sd a3, 280(a0)
+  sd s1, 32(a0)
+  sd s2, 0(a0)
+  sd s3, 40(a0)
+  sd s4, 48(a0)
+  sd s5, 56(a0)
+  sd s6, 64(a0)
+  sd s7, 72(a0)
+  sd s8, 80(a0)
+  sd s9, 104(a0)
+  sd s10, 184(a0)
+  sd s11, 272(a0)
   ld  s0,24(sp)
   addi  sp,sp,32
   jr  ra
