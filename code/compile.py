@@ -849,10 +849,7 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
               stack_height += 1
             elif item not in allocation.values():
               if allocation[colors[item]] != None:
-                print('SWAP')
-                print(item)
                 prev = allocation[colors[item]]
-                print(prev)
                 previ = variables.index(prev)
                 assembly += '\n  sd '+colors[prev]+', '+str(previ*8)+'(a0) -- THIS'
                 
@@ -866,52 +863,19 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
             # these are never individual variables
             v1 = stack.pop() 
             v2 = stack.pop() 
-            '''
-            increment = False
-            if v1 in stackmap and v2 in stackmap:
-              increment = True
-              destination = stackmap[stack_height]
-              stack_height += 1
-            elif v1 in stackreg and v2 in stackreg:
-              increment = False
-              destination = stackmap[stack_height-2]
-              stack_height -= 1
-            else:
-              if v1 in stackreg:
-                destination = v1
-              elif v2 in stackreg:
-                destination = v2
-            '''
 
             if item == 'and':
                 assembly += '\n  add ' + destination+', '+v2+', '+v1
                 assembly += '\n  li '+v1+', 1'
                 assembly += '\n  slt '+v2+', '+v1+', '+v2
                 stack_height -= 1
-                '''
-                assembly += '\n  add '
-                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                assembly += '\n  li '+stackmap[stack_height-1]+', 1'
-                assembly += '\n  slt '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
-                stack_height -= 1
-                '''
             elif item == 'or':
                 assembly += '\n  add ' + destination+', '+v2+', '+v1
                 assembly += '\n  li '+v1+', 1'
                 assembly += '\n  slt '+v2+', '+v1+', '+v2
                 stack_height -= 1
-                '''
-                assembly += '\n  add '
-                assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                assembly += '\n  li '+stackmap[stack_height-1]+', 0'
-                assembly += '\n  slt '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]+', '+stackmap[stack_height-2]
-                stack_height -= 1
-                '''
             elif item == 'not':
                 assembly += '\n  not '+v1+', '+v2
-                '''
-                assembly += '\n  not '+stackmap[stack_height-1]+', '+stackmap[stack_height-1]
-                '''
         elif item in ['*','+','-']:
             v1 = stack.pop() 
             v2 = stack.pop() 
@@ -936,10 +900,6 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
                 assembly += '\n  add '
 
             assembly += destination+', '+v2+', '+v1
-            '''
-            assembly += stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-            stack_height -= 1
-            '''
         elif item in ['<','>','>=','<=','=']:
             v1 = stack.pop() 
             v2 = stack.pop() 
@@ -965,20 +925,10 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
                 assembly += '\n  li a2, 0'
                 assembly += '\n  slt a2' + ', ' + v2 + ', ' + v1
                 assembly += '\n  mv ' + destination + ', a2'
-                '''
-                assembly += '\n  li a2, 0'
-                assembly += '\n  slt a2' + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
-                '''
             elif item == '>':
                 assembly += '\n  li a2, 0'
                 assembly += '\n  slt a2' + ', ' + v1 + ', ' + v2
                 assembly += '\n  mv ' + destination + ', a2'
-                '''
-                assembly += '\n  li a2, 0'
-                assembly += '\n  slt a2' + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
-                '''
             elif item == '<=':
                 assembly += '\n  li a2, 0'
                 assembly += '\n  addi ' + v1+ ', ' + v1+' ,1'
@@ -986,13 +936,6 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
                 assembly += '\n  mv ' + destination + ', a2'
                 if stored[0]:
                   assembly += '\n  addi ' + v1+ ', ' + v1+' ,-1'
-                  
-                '''
-                assembly += '\n  li a2, 0'
-                assembly += '\n  addi ' + stackmap[stack_height-1] + ',' + stackmap[stack_height-1]+',1'
-                assembly += '\n  slt a2' + ', ' + stackmap[stack_height-2] + ', ' + stackmap[stack_height-1]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
-                '''
             elif item == '>=':
                 assembly += '\n  li a2, 0'
                 assembly += '\n  addi ' + v2+ ', ' + v2+' ,1'
@@ -1000,13 +943,6 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
                 assembly += '\n  mv ' + destination + ', a2'
                 if stored[1]:
                   assembly += '\n  addi ' + v2+ ', ' + v2+' ,-1'
-
-                '''
-                assembly += '\n  li a2, 0'
-                assembly += '\n  addi ' + stackmap[stack_height-2] + ','+stackmap[stack_height-2]+',1'
-                assembly += '\n  slt a2' + ', ' + stackmap[stack_height-1] + ', ' + stackmap[stack_height-2]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
-                '''
             elif item == '=':
                 assembly += '\n  li a2, 0'
                 assembly += '\n  sub ' + destination +', '+v2+', '+v1
@@ -1014,19 +950,7 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
                 assembly += '\n  mv ' + destination + ', a2'
                 if stored[0]:
                   assembly += '\n  addi ' + v1+ ', ' + v1+' ,-1'
-                '''
-                assembly += '\n  li a2, 0'
-                assembly += '\n  sub ' + stackmap[stack_height-2]+', '+stackmap[stack_height-2]+', '+stackmap[stack_height-1]
-                assembly += '\n  seqz a2, ' + stackmap[stack_height-2]
-                assembly += '\n  mv ' + stackmap[stack_height-2] + ', a2'
-                '''
         elif ':=' in item:
-            '''
-            var = node.children[0].name
-            idx = variables.index(var)
-            assembly += '\n  sd '+stackmap[stack_height-1]+', '+str(idx*8)+'(a0)'
-            stack_height -= 1
-            '''
             var = node.children[0].name
             idx = variables.index(var)
   
