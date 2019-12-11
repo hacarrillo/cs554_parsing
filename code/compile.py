@@ -609,6 +609,8 @@ def visualize(path):
   name = os.path.basename(path).split('.')[0]
 
   pt, variables, variables_sorted = parse(data)
+  print(variables)
+  make_main(name, variables, variables_sorted)
 
   # this makes the decorated ast
   # root contains the root of the ast
@@ -617,7 +619,6 @@ def visualize(path):
 
   # this just labels the code
   s = to_code(astroot, True, tab = 0)
-  print(s)
 
   # this makes the the control flow graph and blocks
   # pretty much the same data structure as astnode
@@ -626,42 +627,10 @@ def visualize(path):
   to_cfg(astroot, [cfgroot], blocks, variables)
   # dont need root
   cfgroot = cfgroot.children[0]
-  print()
-  nodes = get_cfg_nodes(cfgroot)
-
-  # new stuff we don't need to visualize I think, but idk where to put it right now
-  solve_rd(cfgroot, variables)
-
-  print()
-  for f in nodes:
-    print('IN '+str(f.label)+' '+f.rd_set_in.__str__())
-  print()
-  for f in nodes:
-    print('OUT '+str(f.label)+' '+f.rd_set_out.__str__())
-  print()
-
-  const_folding(nodes, variables)
-  s = from_blocks_to_code(blocks, tab = 0)
-  print(s)
-
-  # rebuild instead of having to deal with the ast again
-  pt, variables, variables_sorted = parse(s)
-  astroot = ASTNode('block')
-  to_ast(pt, astroot)
-  cfgroot = CFGNode('root')
-  blocks = Block()
-  to_cfg(astroot, [cfgroot], blocks, variables)
-  cfgroot = cfgroot.children[0]
-  nodes = get_cfg_nodes(cfgroot)
-  solve_rd(cfgroot, variables)
-
-  #cfg_to_assembly_loop(nodes, variables)
-  s = to_assembly(blocks, variables, name)
-  print(s)
+  nodes = get_cfg_nodes(cfgroot, [])
 
   #build_ast(astroot)
   #build_cfg(cfgroot)
-
 
   '''
   count = 0
