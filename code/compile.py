@@ -499,7 +499,9 @@ def generate_code(path, c):
   to_ast(pt, astroot)
 
   # this just labels the code
-  s = to_code(astroot, True, tab = 0)
+  s = to_code(astroot, True, tab = 0) 
+  print('DECORATED CODE')
+  print(s)
 
   # this makes the the control flow graph and blocks
   # pretty much the same data structure as astnode
@@ -841,21 +843,24 @@ def assembly_loop(cst, variables, assembly, colors, spilled, allocation):
               stack.append(colors[item])
         elif item in ['and', 'or', 'not']:
             # these are never individual variables
-            v1 = stack.pop() 
-            v2 = stack.pop() 
 
             if item == 'and':
+                v1 = stack.pop() 
+                v2 = stack.pop() 
                 assembly += '\n  add ' + destination+', '+v2+', '+v1
                 assembly += '\n  li '+v1+', 1'
                 assembly += '\n  slt '+v2+', '+v1+', '+v2
                 stack_height -= 1
             elif item == 'or':
+                v1 = stack.pop() 
+                v2 = stack.pop() 
                 assembly += '\n  add ' + destination+', '+v2+', '+v1
                 assembly += '\n  li '+v1+', 1'
                 assembly += '\n  slt '+v2+', '+v1+', '+v2
                 stack_height -= 1
             elif item == 'not':
-                assembly += '\n  not '+v1+', '+v2
+                v1 = stack.pop() 
+                assembly += '\n  not '+v1+', '+v1
         elif item in ['*','+','-']:
             v1 = stack.pop() 
             v2 = stack.pop() 
